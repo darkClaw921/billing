@@ -40,22 +40,27 @@ class task_entity(Resource):
         pprint(data)
         return 'OK'
     
-@api.route('/report/<int:entytyID>/<int:itemID>/<string:userID>')
+@api.route('/report/<string:entitiID>/<int:itemID>/<string:userID>')
 class report_entity(Resource):
-    def post(self,entytyID:int,itemID:int,userID:str):
+    def post(self,entitiID:int,itemID:int,userID:str):
         """Обновление сущности"""
         # pprint(request)
         userID=userID.split('_')[1] 
-        print(f"{entytyID=}")
+        entitiID=entitiID.split('_')[0]
+        if entitiID != 'Tb8': return 'Not report'
+        
+        entitiID=184
+            
+        print(f"{entitiID=}")
         print(f"{itemID=}")
         print(f"{userID=}")
 
-        data = request.data
-        entityID = data['entityID'] #Tb8_2
-        itemID = data['itemID']
-        userID = data['userID'].split('_')[1]
+        # data = request.data
+        # entityID = data['entityID'] #Tb8_2
+        # itemID = data['itemID']
+        # userID = data['userID'].split('_')[1]
 
-        pprint(data)
+        # pprint(data)
         return 'OK'
     
     # def post(self,):
