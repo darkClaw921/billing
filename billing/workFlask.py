@@ -72,7 +72,7 @@ class report_entity(Resource):
         pprint(allduration)
 
 
-        update_report_for_item(entinyID=entitiID,itemID=itemID, trydozatraty=allduration)
+        update_report_for_item(entinyID=entitiID,itemID=itemID, trydozatraty=allduration, month='Апрель')
 
 
         # data = request.data
