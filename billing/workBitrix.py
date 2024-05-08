@@ -55,8 +55,12 @@ class ProjectItem:
     # duration:str='UF_CRM9_1713363122'
     # dateClose:str='UF_CRM9_1713363093'
     trydozatrary:str='ufCrm10_1715009361575'
-    stavka=str='ufCrm10_1715009373186'
+    stavka:str='ufCrm10_1715009373186'
 
+@dataclass
+class ReportItem:
+    month:str='ufCrm12_1715167326269'
+    trydozatrary:str='ufCrm12_1715167372937'
 
 # async def te
 def find_deal(dealID:str):
@@ -195,13 +199,20 @@ def update_tasks_for_item(entinyID, itemID, tasks:str):
     # 1/0
     bit.call('crm.item.update', items={'entityTypeId':entinyID,'id': itemID, 'fields':fields})
 
+def update_report_for_item(entinyID, itemID, trydozatraty :str, month:str):
 
+    fields={
+            ReportItem.trydozatrary: trydozatraty
+            }
+
+
+    bit.call('crm.item.update', items={'entityTypeId':entinyID,'id': itemID, 'fields':fields})
 
 def get_activity(activityID:str):
     activity = bit.call('crm.activity.get', items={'id': activityID})
     return activity
 
-def get_task_elapseditem_getlist(date:str):
+def get_task_elapseditem_getlist(date:str, userID=None):
     """Вернет все потраченное время на задачи после указанной даты >=date
 
     Args:
@@ -221,8 +232,18 @@ def get_task_elapseditem_getlist(date:str):
     tasks=[]
     numPage=1
     while True:
-        task = bit.call('task.elapseditem.getlist', items=[{'ID': 'desc'}, #сортировка по ID
+        if userID is None:
+            task = bit.call('task.elapseditem.getlist', items=[{'ID': 'desc'}, #сортировка по ID
                                                     {'>=CREATED_DATE': date}, #FILTER
+                                                    ['ID', 'TASK_ID', 'USER_ID','CREATED_DATE','SECONDS','COMMENT_TEXT'], #SELECT
+                                                    {'NAV_PARAMS':{'nPageSize':2,#MAX 50
+                                                                   'iNumPage':numPage}}], #СТРАНИЦЫ 
+                                                    raw=True)['result']
+        
+        else:
+            task = bit.call('task.elapseditem.getlist', items=[{'ID': 'desc'}, #сортировка по ID
+                                                    {'>=CREATED_DATE': date,
+                                                     'USER_ID':userID}, #FILTER
                                                     ['ID', 'TASK_ID', 'USER_ID','CREATED_DATE','SECONDS','COMMENT_TEXT'], #SELECT
                                                     {'NAV_PARAMS':{'nPageSize':2,#MAX 50
                                                                    'iNumPage':numPage}}], #СТРАНИЦЫ 
@@ -265,9 +286,10 @@ if __name__ == '__main__':
     # add_new_post_timeline(1, 7, 'deal')
     timeNOW=datetime.now().isoformat(timespec='seconds')
     # print(timeNOW)
-    timeBack=datetime.now()-timedelta(minutes=1)
+    # timeBack=datetime.now()-timedelta(minutes=1)
+    timeBack=datetime.now()-timedelta(days=10)
     timeBack=timeBack.isoformat(timespec='seconds')
-    # print(timeBack)
+    print(timeBack)
     # 1/0
     elapseditem=get_task_elapseditem_getlist(str(timeBack))# '2024-04-20T18:01:00') 
     pprint(elapseditem)
@@ -292,7 +314,7 @@ if __name__ == '__main__':
             BillingItem.dateClose: dateClose.split('+')[0],
             BillingItem.project: projectIDtask.split('_')[1],
         }
-        create_billing_item(fields)
+        # create_billing_item(fields)
 
 
     # tasks=get_crm_task('T89_13')
