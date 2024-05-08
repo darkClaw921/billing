@@ -42,25 +42,30 @@ class task_entity(Resource):
     
 @api.route('/report/<int:entytyID>/<int:itemID>/<string:userID>')
 class report_entity(Resource):
-    def get(self,):
+    def post(self,entytyID:int,itemID:int,userID:str):
         """Обновление сущности"""
-        pprint(request)
+        # pprint(request)
+        userID=userID.split('_')[1] 
+        print(f"{entytyID=}")
+        print(f"{itemID=}")
+        print(f"{userID=}")
+
         data = request.data
-        entityID = data['entityID']
+        entityID = data['entityID'] #Tb8_2
         itemID = data['itemID']
-        userID = data['userID']
+        userID = data['userID'].split('_')[1]
 
         pprint(data)
         return 'OK'
     
-    def post(self,):
-        """Обновление сущности"""
-        data = request.get_json() 
-        pprint(data)
-        # tasks=get_crm_task(13)
-        # p=prepare_crm_task(tasks)
+    # def post(self,):
+    #     """Обновление сущности"""
+    #     data = request.get_json() 
+    #     pprint(data)
+    #     # tasks=get_crm_task(13)
+    #     # p=prepare_crm_task(tasks)
         
-        return 'OK'
+    #     return 'OK'
 
 
 
