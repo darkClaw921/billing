@@ -68,7 +68,7 @@ class report_entity(Resource):
         pprint(elapseditem)
         allduration=0
         for item in elapseditem:
-            allduration+=item['SECONDS']
+            allduration+=int(item['SECONDS'])
         pprint(allduration)
 
 
