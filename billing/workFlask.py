@@ -40,12 +40,16 @@ class task_entity(Resource):
         pprint(data)
         return 'OK'
     
-@api.route('/tasks')
-class tasks_entity(Resource):
+@api.route('/report/<int:entytyID>/<int:itemID>/<strting:userID>')
+class report_entity(Resource):
     def get(self,):
         """Обновление сущности"""
         pprint(request)
-        data = request.get_json() 
+        data = request.data
+        entityID = data['entityID']
+        itemID = data['itemID']
+        userID = data['userID']
+        
         pprint(data)
         return 'OK'
     

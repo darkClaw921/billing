@@ -13,6 +13,9 @@ webhook = os.getenv('WEBHOOK')
 bit = Bitrix(webhook)
 BILLING_ITEM_ID=168
 PROJECT_ITEM_ID=153
+# TODO: нужно как-то получить id проекта автоматически а так можно посомтреть через get
+# case ['T99', itemID]:
+
 @dataclass
 class Lead:
     userName:str
