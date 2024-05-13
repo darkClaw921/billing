@@ -74,6 +74,15 @@ class ReportItem:
     startDate:str='begindate',
     closeDate:str='closedate',
 
+@dataclass
+class Calendar:
+    id:str='ID'
+    title:str='NAME'
+    duration:str='DT_LENGTH'
+    project:str='UF_CRM_CAL_EVENT'
+
+
+
 # async def te
 def find_deal(dealID:str):
     deal = bit.call('crm.deal.get', params={'id': dealID})
@@ -151,14 +160,16 @@ def get_item(entinyID):
     itID=0
     match entinyID.split('_'):
         
-        case ['T9e', itemID]: #процесс проект
-            # print(itemID)
+        case ['T99', itemID]: #процесс проект test
+        # case ['T9e', itemID]: #процесс проект
+            print(itemID)
             # pprint(PROJECT_ITEM_ID)
 
             enID=PROJECT_ITEM_ID
             itID=itemID
+
         case _: 
-            print('неизвестный тип должен быть в формате T99')
+            print('неизвестный тип должен быть в формате T9e')
     
     # 1/0
     item=bit.call('crm.item.get', items={'entityTypeId':enID,'id': itID}, raw=True)['result']['item']
@@ -316,7 +327,38 @@ def get_billing_items(userID:str, startDate:str, endDate:str):
     
     return items
 
-def main():
+
+
+def create_billing_for_event(event:dict):
+
+    projectIDtask=event['UF_CRM_CAL_EVENT'][0] # T89_13
+    # project=get_item(projectIDtask)  
+    # pprint(project)
+
+    duration=event['DT_LENGTH']
+    duration=duration/3600
+    duration=round(duration, 1)
+
+    title=event['NAME']
+    dateClose=event['DATE_FROM']
+
+    
+    dateClose=dateClose.split(' ')[0].split('.')
+    dateClose=f"{dateClose[2]}-{dateClose[1]}-{dateClose[0]}T00:00:00"
+
+
+    fields={
+        BillingItem.assigned: event['CREATED_BY'],
+        BillingItem.title: title,
+        BillingItem.trydozatrary: duration,
+        BillingItem.dateClose: dateClose,
+        BillingItem.project: projectIDtask.split('_')[1],
+    }
+    pprint(fields)
+    # create_billing_item(fields)
+
+
+def create_billing_for_trydozatrary():
 
     # pass
     # asyncio.run(get_deals())
@@ -375,7 +417,7 @@ def main():
 
 
 def get_calendar_event(eventID:str):
-    event = bit.call('calendar.event.get', items={'id': eventID})
+    event = bit.call('calendar.event.getbyid', items={'id': eventID})
     return event
 
 def get_all_calendar_events():
@@ -388,8 +430,10 @@ def get_all_calendar_events():
         })
     return events
 if __name__ == '__main__':
-    event=get_all_calendar_events()
+    # event=get_all_calendar_events()
+    event=get_calendar_event('22')
     pprint(event)
+    create_billing_for_event(event)
     # main()
     # billingItems=get_billing_items(userID=1)
     # pprint(billingItems)

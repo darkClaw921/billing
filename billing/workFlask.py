@@ -3,7 +3,11 @@ from flask import Flask, request, render_template
 from flask_restx import Api, Resource, fields
 from pprint import pprint  
 from datetime import datetime, timedelta
-from workBitrix import get_task_work_time, create_item, get_crm_task, prepare_crm_task,get_task_elapseditem_getlist,update_report_for_item, get_billing_items, BillingItem
+from workBitrix import get_task_work_time, create_item, get_crm_task, \
+    prepare_crm_task,get_task_elapseditem_getlist, \
+    update_report_for_item, get_billing_items, BillingItem, \
+    create_billing_for_event,get_calendar_event\
+    
 
 app = Flask(__name__)
 api = Api(app, version='1.0', title='pkGroup API',description='A pkGroup API billing',)
@@ -48,9 +52,11 @@ class task_entity(Resource):
         data = request.form
         pprint(data)
         
-        PAY_ID=data['data[FIELDS][ID]']
-        enityID=data['data[FIELDS][ENTITY_TYPE_ID]']
-
+        eventID=data['data[id]']
+        # enityID=data['data[FIELDS][ENTITY_TYPE_ID]']
+        event=get_calendar_event(eventID)
+        create_billing_for_event(event=event)
+        
         return 'OK'
     
     def get(self,):
