@@ -248,7 +248,7 @@ def get_task_elapseditem_getlist(date:str, userID=None):
         if userID is None:
             task = bit.call('task.elapseditem.getlist', items=[{'ID': 'desc'}, #сортировка по ID
                                                     {'>=CREATED_DATE': date}, #FILTER
-                                                    ['ID', 'TASK_ID', 'USER_ID','CREATED_DATE','SECONDS','COMMENT_TEXT'], #SELECT
+                                                    ['ID', 'TASK_ID', 'USER_ID','CREATED_DATE','SECONDS','COMMENT_TEXT','DATE_STOP'], #SELECT
                                                     {'NAV_PARAMS':{'nPageSize':50,#MAX 50
                                                                    'iNumPage':numPage}}], #СТРАНИЦЫ 
                                                     raw=True)['result']
@@ -257,7 +257,7 @@ def get_task_elapseditem_getlist(date:str, userID=None):
             task = bit.call('task.elapseditem.getlist', items=[{'ID': 'desc'}, #сортировка по ID
                                                     {'>=CREATED_DATE': date,
                                                      'USER_ID':userID}, #FILTER
-                                                    ['ID', 'TASK_ID', 'USER_ID','CREATED_DATE','SECONDS','COMMENT_TEXT'], #SELECT
+                                                    ['ID', 'TASK_ID', 'USER_ID','CREATED_DATE','SECONDS','COMMENT_TEXT','DATE_STOP'], #SELECT
                                                     {'NAV_PARAMS':{'nPageSize':50,#MAX 50
                                                                    'iNumPage':numPage}}], #СТРАНИЦЫ 
                                                     raw=True)['result']
@@ -342,7 +342,16 @@ def main():
         title=item['COMMENT_TEXT']
         dateClose=item['CREATED_DATE']
         userID=item['USER_ID']
-        if duration<360:
+
+        stopDate=item['DATE_STOP']
+        # format stopDate to datetime
+        stopDate1=stopDate.split('+')[0]
+        startDate1=dateClose.split('+')[0]
+        print(f'{stopDate1=}')
+        stopDate=datetime.strptime(stopDate1, '%Y-%m-%dT%H:%M:%S')
+        startDate=datetime.strptime(startDate1, '%Y-%m-%dT%H:%M:%S')
+
+        if duration<360 or stopDate-startDate<=timedelta(minutes=1):
             continue
         # create_item(duration, taskID, title, dateClose)
         
@@ -362,12 +371,26 @@ def main():
             BillingItem.dateClose: dateClose.split('+')[0],
             BillingItem.project: projectIDtask.split('_')[1],
         }
-        create_billing_item(fields)
+        # create_billing_item(fields)
 
 
+def get_calendar_event(eventID:str):
+    event = bit.call('calendar.event.get', items={'id': eventID})
+    return event
 
+def get_all_calendar_events():
+    events = bit.call('calendar.event.get', items={
+        'type': 'user',
+		'ownerId': '1',
+		'from': '2024-05-10',
+		'to': '2023-05-20',
+		# 'section': [21, 44]
+        })
+    return events
 if __name__ == '__main__':
-    main()
+    event=get_all_calendar_events()
+    pprint(event)
+    # main()
     # billingItems=get_billing_items(userID=1)
     # pprint(billingItems)
     # task=get_task(11)

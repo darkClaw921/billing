@@ -39,6 +39,26 @@ class task_entity(Resource):
         data = request.get_json() 
         pprint(data)
         return 'OK'
+
+
+@api.route('/event')
+class task_entity(Resource):
+    def post(self,):
+        """Обновление сущности"""
+        data = request.form
+        pprint(data)
+        
+        PAY_ID=data['data[FIELDS][ID]']
+        enityID=data['data[FIELDS][ENTITY_TYPE_ID]']
+
+        return 'OK'
+    
+    def get(self,):
+        """Обновление сущности"""
+        pprint(request)
+        # data = request.get_json() 
+        # pprint(data)
+        return 'OK'
     
 @api.route('/report/<string:entitiID>/<int:itemID>/<string:userID>/<string:startDate>/<string:endDate>')
 class report_entity(Resource):
