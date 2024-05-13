@@ -247,7 +247,7 @@ def get_task_elapseditem_getlist(date:str, userID=None):
     while True:
         if userID is None:
             task = bit.call('task.elapseditem.getlist', items=[{'ID': 'desc'}, #сортировка по ID
-                                                    {'>=DATE_STOP': date}, #FILTER
+                                                    {'>=CREATED_DATE': date}, #FILTER
                                                     ['ID', 'TASK_ID', 'USER_ID','CREATED_DATE','SECONDS','COMMENT_TEXT'], #SELECT
                                                     {'NAV_PARAMS':{'nPageSize':50,#MAX 50
                                                                    'iNumPage':numPage}}], #СТРАНИЦЫ 
@@ -255,7 +255,7 @@ def get_task_elapseditem_getlist(date:str, userID=None):
         
         else:
             task = bit.call('task.elapseditem.getlist', items=[{'ID': 'desc'}, #сортировка по ID
-                                                    {'>=DATE_STOP': date,
+                                                    {'>=CREATED_DATE': date,
                                                      'USER_ID':userID}, #FILTER
                                                     ['ID', 'TASK_ID', 'USER_ID','CREATED_DATE','SECONDS','COMMENT_TEXT'], #SELECT
                                                     {'NAV_PARAMS':{'nPageSize':50,#MAX 50
