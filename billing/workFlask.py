@@ -8,7 +8,7 @@ from workBitrix import get_task_work_time, create_item, get_crm_task, prepare_cr
 app = Flask(__name__)
 api = Api(app, version='1.0', title='pkGroup API',description='A pkGroup API billing',)
 
-
+REPORT_ITEM_ID=159
 @api.route('/task')
 class task_entity(Resource):
     def post(self,):
@@ -47,9 +47,9 @@ class report_entity(Resource):
         # pprint(request)
         userID=userID.split('_')[1] 
         entitiID=entitiID.split('_')[0]
-        if entitiID != 'Tb8': return 'Not report'
+        if entitiID != 'T9e': return 'Not report'
         
-        entitiID=184
+        entitiID=REPORT_ITEM_ID
             
         print(f"{entitiID=}")
         print(f"{itemID=}")
@@ -84,7 +84,7 @@ class report_entity(Resource):
         # allduration=allduration/3600
         # allduration=round(allduration, 1)
 
-        update_report_for_item(entinyID=entitiID,itemID=itemID, trydozatraty=allduration, month='Апрель')
+        update_report_for_item(entinyID=entitiID,itemID=itemID, trydozatraty=allduration, countBillung=len(billingItems))
 
 
 

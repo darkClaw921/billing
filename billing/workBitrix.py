@@ -12,8 +12,8 @@ from helper import get_last_day_of_month
 load_dotenv()
 webhook = os.getenv('WEBHOOK')
 bit = Bitrix(webhook)
-BILLING_ITEM_ID=168
-PROJECT_ITEM_ID=153
+BILLING_ITEM_ID=173
+PROJECT_ITEM_ID=158
 # TODO: нужно как-то получить id проекта автоматически а так можно посомтреть через get
 # case ['T99', itemID]:
 
@@ -43,13 +43,13 @@ class BillingItem:
     title:str='title'
     # duration:str='UF_CRM9_1713363122'
 
-    dateClose:str='ufCrm10_1715010793674'
-    # dateClose:str='ufCrm_17Date'
+    # dateClose:str='ufCrm10_1715010793674'
+    dateClose:str='ufCrm_17Date'
     # entityTypeId:str='ENTITY_TYPE_ID 
     # fields:str='FIELDS'
-    trydozatrary:str='ufCrm10_1715009361575'
-    stavka:str='ufCrm10_1715009373186'
-    project:str='ufCrm10_1715009699'
+    trydozatrary:str='ufCrm17Duration'
+    stavka:str='None'
+    project:str='parentId158'
     assigned:str='assignedById'
     
     
@@ -65,8 +65,12 @@ class ProjectItem:
 
 @dataclass
 class ReportItem:
-    month:str='ufCrm12_1715167326269'
-    trydozatrary:str='ufCrm12_1715167372937'
+    # month:str='ufCrm12_1715167326269'
+    # month:str='ufCrm12_1715167326269'
+    # trydozatrary:str='ufCrm12_1715167372937'
+    trydozatrary:str='ufCrm27Durationfact' 
+
+    countBilling:str='ufCrm27Billingsamount'
 
 # async def te
 def find_deal(dealID:str):
@@ -145,14 +149,14 @@ def get_item(entinyID):
     itID=0
     match entinyID.split('_'):
         
-        case ['T99', itemID]: #процесс проект
+        case ['T9e', itemID]: #процесс проект
             # print(itemID)
             # pprint(PROJECT_ITEM_ID)
 
             enID=PROJECT_ITEM_ID
             itID=itemID
         case _: 
-            pprint(1)
+            print('неизвестный тип должен быть в формате T99')
     
     # 1/0
     item=bit.call('crm.item.get', items={'entityTypeId':enID,'id': itID}, raw=True)['result']['item']
@@ -205,10 +209,11 @@ def update_tasks_for_item(entinyID, itemID, tasks:str):
     # 1/0
     bit.call('crm.item.update', items={'entityTypeId':entinyID,'id': itemID, 'fields':fields})
 
-def update_report_for_item(entinyID, itemID, trydozatraty :str, month:str):
+def update_report_for_item(entinyID, itemID, trydozatraty :str, countBillung:int, month:str='Aprill'):
 
     fields={
-            ReportItem.trydozatrary: trydozatraty
+            ReportItem.trydozatrary: trydozatraty,
+            ReportItem.countBilling: countBillung,
             }
 
 
@@ -319,7 +324,7 @@ def main():
     # add_new_post_timeline(1, 7, 'deal')
     timeNOW=datetime.now().isoformat(timespec='seconds')
     # print(timeNOW)
-    timeBack=datetime.now()-timedelta(days=6)
+    timeBack=datetime.now()-timedelta(minutes=1)
     # timeBack=datetime.now()-timedelta(days=2)
     timeBack=timeBack.isoformat(timespec='seconds')
     print(timeBack)
@@ -360,6 +365,9 @@ def main():
 if __name__ == '__main__':
     main()
     # billingItems=get_billing_items(userID=1)
+    # pprint(billingItems)
+    # task=get_task(11)
+    # pprint(task)
     # pprint(billingItems)
     # allduration=0
     # for item in billingItems:
