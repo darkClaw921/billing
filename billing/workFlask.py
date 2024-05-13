@@ -64,12 +64,26 @@ class report_entity(Resource):
         # timeBack=timeBack.isoformat(timespec='seconds')
         # print(timeBack)
         # 1/0
+        #formated date 1.1.2024 to 2024-01-01T00:00:00
+        
+        
+        startDate=startDate.split('.')
+        startDate=f"{startDate[2]}-{startDate[1]}-{startDate[0]}T00:00:00"
+        endDate=endDate.split('.')
+        endDate=f"{endDate[2]}-{endDate[1]}-{endDate[0]}T23:59:59"
+        
+
+
 
         billingItems=get_billing_items(userID=userID,startDate=startDate,endDate=endDate)
         pprint(billingItems)
         allduration=0
+        countBilling=0
         for item in billingItems:
+            if item['stageId'].find(':FAIL') == -1:
+                continue
             allduration+=float(item[BillingItem.trydozatrary])
+            countBilling+=1
         pprint(allduration)
 
 
@@ -84,7 +98,7 @@ class report_entity(Resource):
         # allduration=allduration/3600
         # allduration=round(allduration, 1)
 
-        update_report_for_item(entinyID=entitiID,itemID=itemID, trydozatraty=allduration, countBillung=len(billingItems))
+        update_report_for_item(entinyID=entitiID,itemID=itemID, trydozatraty=allduration, countBillung=countBilling)
 
 
 
