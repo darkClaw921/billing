@@ -54,9 +54,11 @@ class task_entity(Resource):
         
         eventID=data['data[id]']
         # enityID=data['data[FIELDS][ENTITY_TYPE_ID]']
+        print(f"{eventID=}")
         event=get_calendar_event(eventID)
+        pprint(event)
         create_billing_for_event(event=event)
-        
+
         return 'OK'
     
     def get(self,):
