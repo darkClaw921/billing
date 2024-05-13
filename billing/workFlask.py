@@ -40,9 +40,9 @@ class task_entity(Resource):
         pprint(data)
         return 'OK'
     
-@api.route('/report/<string:entitiID>/<int:itemID>/<string:userID>')
+@api.route('/report/<string:entitiID>/<int:itemID>/<string:userID>/<string:startDate>/<string:endDate>')
 class report_entity(Resource):
-    def post(self,entitiID:int,itemID:int,userID:str):
+    def post(self,entitiID:int,itemID:int,userID:str,startDate:str,endDate:str):
         """Обновление сущности"""
         # pprint(request)
         userID=userID.split('_')[1] 
@@ -65,7 +65,7 @@ class report_entity(Resource):
         # print(timeBack)
         # 1/0
 
-        billingItems=get_billing_items(userID=userID)
+        billingItems=get_billing_items(userID=userID,startDate=startDate,endDate=endDate)
         pprint(billingItems)
         allduration=0
         for item in billingItems:

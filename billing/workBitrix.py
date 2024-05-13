@@ -71,6 +71,8 @@ class ReportItem:
     trydozatrary:str='ufCrm27Durationfact' 
 
     countBilling:str='ufCrm27Billingsamount'
+    startDate:str='begindate',
+    closeDate:str='closedate',
 
 # async def te
 def find_deal(dealID:str):
@@ -284,27 +286,29 @@ def get_task_elapseditem_getlist(date:str, userID=None):
 def create_billing_item(fields:dict):
     bit.call('crm.item.add', items={'entityTypeId':BILLING_ITEM_ID, 'fields':fields})
 
-def get_billing_items(userID:str):
+def get_billing_items(userID:str, startDate:str, endDate:str):
     """Возвращает все записи по биллингу за месяц по пользователю
 
     Args:
         userID (str): _description_
-
+        startDate:str (str): '2024-04-20T18:01:00'
     Returns:
         _type_: _description_
     """
 
-    startDateMonth=datetime.now().replace(day=1, hour=0,minute=0,second=0).isoformat(timespec='seconds')
-    endDateMonth=get_last_day_of_month()
-    print(f'{startDateMonth=}')
-    print(f'{endDateMonth=}')
+    # startDate=datetime.now().replace(day=1, hour=0,minute=0,second=0).isoformat(timespec='seconds')
+    # endDate=get_last_day_of_month()
+    # print(f'{startDateMonth=}')
+    # print(f'{endDateMonth=}')
+
 
     items = bit.get_all('crm.item.list', params={'entityTypeId':BILLING_ITEM_ID,
                                              'filter':
                                                 {
-                                                f'>={BillingItem.dateClose}': startDateMonth,
-                                                f'<={BillingItem.dateClose}': endDateMonth,
-                                                'assignedById': userID}
+                                                f'>={BillingItem.dateClose}': startDate,
+                                                f'<={BillingItem.dateClose}': endDate,
+                                                'assignedById': userID},
+                                                # f'!={BillingItem.stage}'
                                             }, )
                                             #
                                             #   }, raw=True)['result']
