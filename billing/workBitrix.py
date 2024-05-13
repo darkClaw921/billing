@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import urllib.request
 import time
 import asyncio
+from helper import get_last_day_of_month
 load_dotenv()
 webhook = os.getenv('WEBHOOK')
 bit = Bitrix(webhook)
@@ -41,12 +42,17 @@ class BillingItem:
     id:str='id'
     title:str='title'
     # duration:str='UF_CRM9_1713363122'
+
     dateClose:str='ufCrm10_1715010793674'
+    # dateClose:str='ufCrm_17Date'
     # entityTypeId:str='ENTITY_TYPE_ID 
     # fields:str='FIELDS'
     trydozatrary:str='ufCrm10_1715009361575'
     stavka:str='ufCrm10_1715009373186'
     project:str='ufCrm10_1715009699'
+    assigned:str='assignedById'
+    
+    
 
 @dataclass
 class ProjectItem:
@@ -273,8 +279,35 @@ def get_task_elapseditem_getlist(date:str, userID=None):
 def create_billing_item(fields:dict):
     bit.call('crm.item.add', items={'entityTypeId':BILLING_ITEM_ID, 'fields':fields})
 
+def get_billing_items(userID:str):
+    """Возвращает все записи по биллингу за месяц по пользователю
 
-if __name__ == '__main__':
+    Args:
+        userID (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    startDateMonth=datetime.now().replace(day=1, hour=0,minute=0,second=0).isoformat(timespec='seconds')
+    endDateMonth=get_last_day_of_month()
+    print(f'{startDateMonth=}')
+    print(f'{endDateMonth=}')
+
+    items = bit.get_all('crm.item.list', params={'entityTypeId':BILLING_ITEM_ID,
+                                             'filter':
+                                                {
+                                                f'>={BillingItem.dateClose}': startDateMonth,
+                                                f'<={BillingItem.dateClose}': endDateMonth,
+                                                'assignedById': userID}
+                                            }, )
+                                            #
+                                            #   }, raw=True)['result']
+                                             
+    
+    return items
+
+def main():
 
     # pass
     # asyncio.run(get_deals())
@@ -286,8 +319,8 @@ if __name__ == '__main__':
     # add_new_post_timeline(1, 7, 'deal')
     timeNOW=datetime.now().isoformat(timespec='seconds')
     # print(timeNOW)
-    # timeBack=datetime.now()-timedelta(minutes=1)
-    timeBack=datetime.now()-timedelta(days=10)
+    timeBack=datetime.now()-timedelta(days=6)
+    # timeBack=datetime.now()-timedelta(days=2)
     timeBack=timeBack.isoformat(timespec='seconds')
     print(timeBack)
     # 1/0
@@ -296,9 +329,12 @@ if __name__ == '__main__':
 
     for item in elapseditem:
         taskID=item['TASK_ID']
-        duration=item['SECONDS']
+        duration=int(item['SECONDS'])
         title=item['COMMENT_TEXT']
         dateClose=item['CREATED_DATE']
+        userID=item['USER_ID']
+        if duration<360:
+            continue
         # create_item(duration, taskID, title, dateClose)
         
         # taskID=item['ID']
@@ -307,16 +343,33 @@ if __name__ == '__main__':
         projectIDtask=task['task']['ufCrmTask'][0] # T89_13
         project=get_item(projectIDtask)  
         pprint(project)
+        duration=duration/3600
+        duration=round(duration, 1)
         
         fields={
+            BillingItem.assigned: userID,
             BillingItem.title: title,
             BillingItem.trydozatrary: duration,
             BillingItem.dateClose: dateClose.split('+')[0],
             BillingItem.project: projectIDtask.split('_')[1],
         }
-        # create_billing_item(fields)
+        create_billing_item(fields)
 
 
+
+if __name__ == '__main__':
+    main()
+    # billingItems=get_billing_items(userID=1)
+    # pprint(billingItems)
+    # allduration=0
+    # for item in billingItems:
+    #     allduration+=int(item[BillingItem.trydozatrary])
+    # allduration=allduration/3600
+    # allduration=round(allduration, 1)
+    # pprint(allduration)
+    # print(get_last_day_of_month())
+    # endDateMonth=datetime.now().replace(day=1, hour=0,minute=0,second=0)-timedelta(days=1)
+    # pprint(endDateMonth.isoformat(timespec='seconds'))
     # tasks=get_crm_task('T89_13')
     # p=prepare_crm_task(tasks)
     # update_tasks_for_item(137, 13, p)
