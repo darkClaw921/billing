@@ -47,7 +47,7 @@ class report_entity(Resource):
         # pprint(request)
         userID=userID.split('_')[1] 
         entitiID=entitiID.split('_')[0]
-        if entitiID != 'T9e': return 'Not report'
+        if entitiID != 'T9ef': return 'Not report'
         
         entitiID=REPORT_ITEM_ID
             
