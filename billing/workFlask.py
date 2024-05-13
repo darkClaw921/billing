@@ -71,7 +71,7 @@ class report_entity(Resource):
         startDate=f"{startDate[2]}-{startDate[1]}-{startDate[0]}T00:00:00"
         endDate=endDate.split('.')
         endDate=f"{endDate[2]}-{endDate[1]}-{endDate[0]}T23:59:59"
-        
+
 
 
 
@@ -80,7 +80,7 @@ class report_entity(Resource):
         allduration=0
         countBilling=0
         for item in billingItems:
-            if item['stageId'].find(':FAIL') == -1:
+            if item['stageId'].find(':FAIL') != -1:
                 continue
             allduration+=float(item[BillingItem.trydozatrary])
             countBilling+=1
