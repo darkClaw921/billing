@@ -107,12 +107,15 @@ class report_entity(Resource):
         pprint(billingItems)
         allduration=0
         countBilling=0
+        allDurationToBuy=0
         for item in billingItems:
             if item['stageId'].find(':FAIL') != -1:
                 continue
             allduration+=float(item[BillingItem.trydozatrary])
+            allDurationToBuy+=float(item[BillingItem.trydozatratyKoplate])
             countBilling+=1
         pprint(allduration)
+        
 
 
 
@@ -126,7 +129,7 @@ class report_entity(Resource):
         # allduration=allduration/3600
         # allduration=round(allduration, 1)
 
-        update_report_for_item(entinyID=entitiID,itemID=itemID, trydozatraty=allduration, countBillung=countBilling)
+        update_report_for_item(entinyID=entitiID,itemID=itemID, trydozatraty=allduration, countBillung=countBilling,trydozatratyKoplate=allDurationToBuy)
 
 
 

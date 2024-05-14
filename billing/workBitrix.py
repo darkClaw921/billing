@@ -48,6 +48,7 @@ class BillingItem:
     # entityTypeId:str='ENTITY_TYPE_ID 
     # fields:str='FIELDS'
     trydozatrary:str='ufCrm17Duration'
+    trydozatratyKoplate:str='ufCrm17Durationbillable'
     stavka:str='None'
     project:str='parentId158'
     assigned:str='assignedById'
@@ -69,7 +70,7 @@ class ReportItem:
     # month:str='ufCrm12_1715167326269'
     # trydozatrary:str='ufCrm12_1715167372937'
     trydozatrary:str='ufCrm27Durationfact' 
-
+    trydozatratyKoplate:str='ufCrm27Durationbillable'
     countBilling:str='ufCrm27Billingsamount'
     startDate:str='begindate',
     closeDate:str='closedate',
@@ -222,11 +223,12 @@ def update_tasks_for_item(entinyID, itemID, tasks:str):
     # 1/0
     bit.call('crm.item.update', items={'entityTypeId':entinyID,'id': itemID, 'fields':fields})
 
-def update_report_for_item(entinyID, itemID, trydozatraty :str, countBillung:int, month:str='Aprill'):
+def update_report_for_item(entinyID, itemID, trydozatraty :str, countBillung:int, trydozatratyKoplate,month:str='Aprill'):
 
     fields={
             ReportItem.trydozatrary: trydozatraty,
             ReportItem.countBilling: countBillung,
+            ReportItem.trydozatratyKoplate: trydozatratyKoplate
             }
 
 
