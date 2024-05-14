@@ -114,7 +114,9 @@ class report_entity(Resource):
             allduration+=float(item[BillingItem.trydozatrary])
             allDurationToBuy+=float(item[BillingItem.trydozatratyKoplate])
             countBilling+=1
+            
         pprint(allduration)
+        pprint(allDurationToBuy)
         
 
 

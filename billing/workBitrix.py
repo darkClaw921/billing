@@ -70,7 +70,8 @@ class ReportItem:
     # month:str='ufCrm12_1715167326269'
     # trydozatrary:str='ufCrm12_1715167372937'
     trydozatrary:str='ufCrm27Durationfact' 
-    trydozatratyKoplate:str='ufCrm27Durationbillable'
+    trydozatratyKoplate:str='ufCrm27Durationfactbillable'
+    # UF_CRM_27_DURATIONFACTBILLABLE:str='ufCrm27Durationfactbillable'
     countBilling:str='ufCrm27Billingsamount'
     startDate:str='begindate',
     closeDate:str='closedate',
