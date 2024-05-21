@@ -358,7 +358,7 @@ def create_billing_for_event(event:dict):
         BillingItem.project: projectIDtask.split('_')[1],
     }
     pprint(fields)
-    # create_billing_item(fields)
+    create_billing_item(fields)
 
 
 def create_billing_for_trydozatrary():
@@ -434,9 +434,9 @@ def get_all_calendar_events():
     return events
 if __name__ == '__main__':
     # event=get_all_calendar_events()
-    event=get_calendar_event('22')
+    event=get_calendar_event('13')
     pprint(event)
-    create_billing_for_event(event)
+    # create_billing_for_event(event)
     # main()
     # billingItems=get_billing_items(userID=1)
     # pprint(billingItems)
