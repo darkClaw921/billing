@@ -14,9 +14,11 @@ webhook = os.getenv('WEBHOOK')
 bit = Bitrix(webhook)
 BILLING_ITEM_ID=173
 PROJECT_ITEM_ID=158
+SOTRYDNIK_ITEM_ID=1054
 # TODO: нужно как-то получить id проекта автоматически а так можно посомтреть через get
 # case ['T99', itemID]:
-
+#ПРОЕКТЫ
+# 'T9e_158'
 @dataclass
 class Lead:
     userName:str
@@ -83,8 +85,20 @@ class Calendar:
     duration:str='DT_LENGTH'
     project:str='UF_CRM_CAL_EVENT'
 
+@dataclass
+class User:
+    id:str='ID'
+    name:str='NAME'
+    lastName:str='LAST_NAME'
+    secondName:str='SECOND_NAME'
+    active:str='ACTIVE'
+    email:str='EMAIL'
+    department:str='UF_DEPARTMENT'
+    lastProject:str='UF_USR_1716303188461'
 
-
+@dataclass
+class Sotrudnik:
+    lastProject:str='ufCrm41_1716819274'
 # async def te
 def find_deal(dealID:str):
     deal = bit.call('crm.deal.get', params={'id': dealID})
@@ -330,13 +344,18 @@ def get_billing_items(userID:str, startDate:str, endDate:str):
     
     return items
 
-
+def update_event(eventID:str, fields:dict):
+    bit.call('calendar.event.update', items={'id': eventID, 'fields': fields})
 
 def create_billing_for_event(event:dict):
 
     projectIDtask=event['UF_CRM_CAL_EVENT'][0] # T89_13
     # project=get_item(projectIDtask)  
     # pprint(project)
+    if projectIDtask is None or projectIDtask=='':
+        projectLastID=get_last_project_for_sotrudnik(event['CREATED_BY'])
+        projectIDtask=f'T9e_{projectLastID}' # T89 просто для целосности данных
+        update_event(event['ID'], {'UF_CRM_CAL_EVENT': [projectIDtask]})
 
     duration=event['DT_LENGTH']
     duration=duration/3600
@@ -432,10 +451,34 @@ def get_all_calendar_events():
 		# 'section': [21, 44]
         })
     return events
+
+
+def get_last_project_for_sotrudnik(userID:str):
+    items = bit.get_all('crm.item.list', params={'entityTypeId':SOTRYDNIK_ITEM_ID,
+                                             'filter':
+                                                {
+                                                'assignedById': userID},
+                                            }, )
+                                            #
+                                      
+           
+    
+    return items[0][Sotrudnik.lastProject], items[0]['id']
+
+def update_project_for_sotrudnik(userID:str, projectID:str):
+    projectIDlast,itemSotrudnikID=get_last_project_for_sotrudnik(userID)
+    fields={Sotrudnik.lastProject: projectID}
+    bit.call('crm.item.update', items={'entityTypeId':SOTRYDNIK_ITEM_ID,'id': itemSotrudnikID, 'fields':fields})
+
 if __name__ == '__main__':
     # event=get_all_calendar_events()
     event=get_calendar_event('13')
     pprint(event)
+    # create_entity('userEnt', {'NAME':'test'})
+    # projectID,itemSotrudnikID=get_last_project_for_sotrudnik('23')
+    # update_project_for_sotrudnik('23', '61')
+    # pprint(projectID)
+
     # create_billing_for_event(event)
     # main()
     # billingItems=get_billing_items(userID=1)

@@ -6,7 +6,8 @@ from datetime import datetime, timedelta
 from workBitrix import get_task_work_time, create_item, get_crm_task, \
     prepare_crm_task,get_task_elapseditem_getlist, \
     update_report_for_item, get_billing_items, BillingItem, \
-    create_billing_for_event,get_calendar_event\
+    create_billing_for_event,get_calendar_event, \
+    update_project_for_sotrudnik
     
 
 app = Flask(__name__)
@@ -67,7 +68,27 @@ class task_entity(Resource):
         # data = request.get_json() 
         # pprint(data)
         return 'OK'
-    
+
+@api.route('/project/<string:userID>/<string:projectID>')
+class Project_entity(Resource):
+    def post(self,userID:str,projectID:str):
+        """Обновление сущности"""
+        # data = request.get_json() 
+        # pprint(data)
+        print(f"{userID=}")
+        print(f"{projectID=}")
+        # try:
+        projectID=projectID.split('_')
+        if projectID[0] != 'T9e':
+            return 'No'
+        projectID=projectID[1]
+        # except:
+            # 1+0
+        update_project_for_sotrudnik(userID, projectID)
+        # tasks=get_crm_task(13)
+        # p=prepare_crm_task(tasks)
+        
+        return 'OK'
 @api.route('/report/<string:entitiID>/<int:itemID>/<string:userID>/<string:startDate>/<string:endDate>')
 class report_entity(Resource):
     def post(self,entitiID:int,itemID:int,userID:str,startDate:str,endDate:str):
@@ -114,7 +135,7 @@ class report_entity(Resource):
             allduration+=float(item[BillingItem.trydozatrary])
             allDurationToBuy+=float(item[BillingItem.trydozatratyKoplate])
             countBilling+=1
-            
+
         pprint(allduration)
         pprint(allDurationToBuy)
         
@@ -157,5 +178,5 @@ class report_entity(Resource):
 
 if __name__ == '__main__':
     
-    app.run(host='0.0.0.0',port='5007',debug=True)
+    app.run(host='0.0.0.0',port='5007',debug=False)
     
