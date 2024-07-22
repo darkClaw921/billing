@@ -13,7 +13,9 @@ from workBitrix import get_task_work_time, create_item, get_crm_task, \
 
 app = Flask(__name__)
 api = Api(app, version='1.0', title='pkGroup API',description='A pkGroup API billing',)
-
+from queue import Queue
+# Создание экземпляра очереди
+request_queue = Queue()
 REPORT_ITEM_ID=159
 @api.route('/task')
 class task_entity(Resource):
@@ -49,20 +51,33 @@ class task_entity(Resource):
 
 @api.route('/event')
 class task_entity(Resource):
-    def post(self,):
+    def post(self):
         """Обновление сущности"""
-        
         data = request.form
         pprint(data)
 
-        eventID=data['data[id]']
-        # enityID=data['data[FIELDS][ENTITY_TYPE_ID]']
-        print(f"{eventID=}")
-        event=get_calendar_event(eventID)
-        pprint(event)
-        create_billing_for_event(event=event)
+        # Добавление задачи в очередь
+        request_queue.put(data)
+
+        # Обработка задачи
+        self.process_queue()
 
         return 'OK'
+
+    def process_queue(self):
+        """Обработка элементов из очереди"""
+        while not request_queue.empty():
+            # Получение задачи из очереди
+            data = request_queue.get()
+
+            eventID = data['data[id]']
+            print(f"{eventID=}")
+            event = get_calendar_event(eventID)
+            pprint(event)
+            create_billing_for_event(event=event)
+
+            # Сигнализация о том, что задача обработана
+            request_queue.task_done()
     
     def get(self,):
         """Обновление сущности"""
