@@ -454,7 +454,7 @@ def create_billing_for_trydozatrary():
 
 
 def get_calendar_event(eventID:str):
-    randomSecond=random.random(0, 3)
+    randomSecond=random.randint(0, 4)
     time.sleep(randomSecond)
     event = bit.call('calendar.event.getbyid', items={'id': eventID})
     return event
