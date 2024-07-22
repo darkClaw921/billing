@@ -349,10 +349,11 @@ def update_event(eventID:str, fields:dict):
 
 def create_billing_for_event(event:dict):
 
-    projectIDtask=event['UF_CRM_CAL_EVENT'][0] # T89_13
+
     # project=get_item(projectIDtask)  
     # pprint(project)
-    if projectIDtask is None or projectIDtask=='':
+    projectIDtask=event['UF_CRM_CAL_EVENT'][0] # T89_13
+    if projectIDtask==False:
         projectLastID=get_last_project_for_sotrudnik(event['CREATED_BY'])
         projectIDtask=f'T9e_{projectLastID}' # T89 просто для целосности данных
         update_event(event['ID'], {'UF_CRM_CAL_EVENT': [projectIDtask]})
@@ -368,16 +369,26 @@ def create_billing_for_event(event:dict):
     dateClose=dateClose.split(' ')[0].split('.')
     dateClose=f"{dateClose[2]}-{dateClose[1]}-{dateClose[0]}T00:00:00"
 
-
-    fields={
-        BillingItem.assigned: event['CREATED_BY'],
-        BillingItem.title: title,
-        BillingItem.trydozatrary: duration,
-        BillingItem.dateClose: dateClose,
-        BillingItem.project: projectIDtask.split('_')[1],
-    }
-    pprint(fields)
-    create_billing_item(fields)
+    ATTENDEES_CODES=event['ATTENDEES_CODES']
+    for code in ATTENDEES_CODES:
+        try:
+            code.startswith('U')
+        except:
+            code='U'+event['CREATED_BY']
+            
+        if code.startswith('U'):
+            userID=code.replace('U','')
+            
+            fields={
+                # BillingItem.assigned: event['CREATED_BY'],
+                BillingItem.assigned: userID,
+                BillingItem.title: title,
+                BillingItem.trydozatrary: duration,
+                BillingItem.dateClose: dateClose,
+                BillingItem.project: projectIDtask.split('_')[1],
+            }
+            pprint(fields)
+            create_billing_item(fields)
 
 
 def create_billing_for_trydozatrary():
@@ -470,10 +481,120 @@ def update_project_for_sotrudnik(userID:str, projectID:str):
     fields={Sotrudnik.lastProject: projectID}
     bit.call('crm.item.update', items={'entityTypeId':SOTRYDNIK_ITEM_ID,'id': itemSotrudnikID, 'fields':fields})
 
-if __name__ == '__main__':
-    # event=get_all_calendar_events()
-    event=get_calendar_event('13')
+
+def prepare_date(date:str):
+    new_format = "%Y-%m-%d %H:%M"
+
+    old_date = datetime.strptime(date, "%d.%m.%Y %H:%M:%S")
+    new_date_str = old_date.strftime(new_format)
+    return new_date_str
+
+def create_event(event:dict):
+    #event['TO'] 28.05.2024 13:40:00 to '%Y-%m-%d %H:%M:%S'
+    
+    
+    
+    
+    
+    # items={
+    #     'from':prepare_date(event['DATE_FROM']),
+    #     'to':prepare_date(event['DATE_TO']),
+    #     'ownerId':event['CREATED_BY'],
+    #     'section':event['SECTION_ID'],
+    #     'name':event['NAME'],
+    #     'description':event['DESCRIPTION'],
+    #     'location':event['LOCATION'],
+    #     'is_meeting':'Y',
+    #     # 'type':event['CAL_TYPE'],
+    #     'type':'user',
+    #     # 'type':'company_calendar',
+    #     'UF_CRM_CAL_EVENT':['D_2'],
+
+        
+    # }
+    # to = prepare_date(event['DATE_TO']),
+    # print(to)
+    a = bit2.callMethod('calendar.event.add', 
+            type='user', 
+            to = prepare_date(event['DATE_TO']),
+            ownerId='1',#10
+            From=prepare_date(event['DATE_FROM']),
+            section=4,#8
+            name=event['NAME'],
+            # location='Зал 1',
+            is_meeting='Y',
+            
+            #description=callBack,
+            #attendees=[10,6,226,240],
+            attendees=[1,2],
+            UF_CRM_CAL_EVENT=["C_2"],
+            ufCrmCalEvent='D_2',
+
+            #imeeting={'UF_CRM_CAL_EVENT':'C_226'}
+            )
+    
+    # eventID=bit.call('calendar.event.add', items=items, raw=True)['result']x
+    pprint(a)
+    return a
+
+import asyncio
+async def main():
+    # a= await bit2.callMethod('crm.product.list')
+    # pprint(a)
+    event=await get_calendar_event('62')
     pprint(event)
+
+    eventID=await create_event(event)
+    print(f'{eventID=}')
+    event1=await get_calendar_event(eventID=eventID)
+    pprint(event1)
+    print('done')
+# https://test-6-may.bitrix24.ru/rest/1/q62k8mchz97yjwap/calendar.event.add.json?type=user&to=2024-05-28+12:00&ownerId=1&FROM=2024-05-28+11:00&section=4&name=wee&is_meeting=Y&UF_CRM_CAL_EVENT%5B0%5D=1&start=0
+if __name__ == '__main__':
+    # main()
+    # asyncio.run(main())
+    # project=bit.call('crm.item.get', items={'entityTypeId':137,'id': 242}, raw=True)['result']['item']
+    # pprint(project)
+    # tarif=bit.call('crm.item.get', items={'entityTypeId':158,'id': 12}, raw=True)['result']['item']
+    # pprint(tarif)
+    # billing=bit.call('crm.item.get', items={'entityTypeId':160,'id': 288}, raw=True)['result']['item']
+    # pprint(billing)
+    # users = bit.call('user.get', items={'id':'3'},raw=True)['result']
+    # pprint(users)
+
+    billings=bit.get_all('crm.item.list', params={'entityTypeId':160,'filter':{
+        "parentId137": 242,
+        '>=ufCrm16Date':'2024-05-01T00:00:00',
+        '<=ufCrm16Date':'2024-06-30T00:00:00',
+        'stageId':'DT160_26:PREPARATION'
+
+    }})
+    pprint(billings)
+    print(len(billings))
+    # event=get_all_calendar_events()
+    # event=get_calendar_event('43')
+    # # update_event(event=event,fields={'UF_CRM_CAL_EVENT': [61]})
+    # update_event(event=event,projectID=[61])
+    # print(bit2.callMethod('crm.product.list'))
+    
+    # a = bit.callMethod('calendar.event.add', type='company_calendar', 
+    #         to = f'{date.year}-{date.month}-{day} {endTime}',
+
+    #         ownerId=' ',#10
+    #         FROM=f'{date.year}-{date.month}-{day} {time}',
+    #         section=1,#8
+    #         name=f'',
+    #         location='Зал 1',
+    #         is_meeting='Y',
+    #         #description=callBack,
+    #         #attendees=[10,6,226,240],
+    #         UF_CRM_CAL_EVENT=[226,240],
+
+    #         #imeeting={'UF_CRM_CAL_EVENT':'C_226'}
+    #         )
+    # a=bit.call('calendar.resource.list',items={'id':1})
+    # pprint(a)
+    # pprint(event)
     # create_entity('userEnt', {'NAME':'test'})
     # projectID,itemSotrudnikID=get_last_project_for_sotrudnik('23')
     # update_project_for_sotrudnik('23', '61')

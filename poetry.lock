@@ -179,6 +179,23 @@ test-tox = ["equinox", "mypy (>=0.800)", "numpy", "pandera", "pytest (>=4.0.0)",
 test-tox-coverage = ["coverage (>=5.5)"]
 
 [[package]]
+name = "bitrix24-rest"
+version = "2.0.0"
+description = "Easy way to communicate with bitrix24 portal over REST without OAuth"
+optional = false
+python-versions = "*"
+files = [
+    {file = "bitrix24_rest-2.0.0-py3-none-any.whl", hash = "sha256:ad7a1f647d9db0c10389a252d0d41b19d4ebda8263ef61398e87452d7da145bb"},
+    {file = "bitrix24_rest-2.0.0.tar.gz", hash = "sha256:d4dd54acbf11c51b21464981d56e40e8aaa297d488e3c7de2f639d32a867e28f"},
+]
+
+[package.dependencies]
+aiohttp = "*"
+
+[package.extras]
+dev = ["aioresponses", "black", "flake8", "isort", "pydocstyle", "pytest", "pytest-aiohttp", "pytest-asyncio", "pytest-cov", "safety"]
+
+[[package]]
 name = "blinker"
 version = "1.8.1"
 description = "Fast, simple object-to-object and broadcast signaling"
@@ -978,4 +995,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "f669311218aa4f68f38db7147817edf74a54cc49d2711be9340dc212fd5020c2"
+content-hash = "83728e00dc3ca2b7622390da4fb18e279721cf87f6b164b0c2bd135e8e21b1fd"
