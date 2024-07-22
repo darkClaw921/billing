@@ -352,11 +352,14 @@ def create_billing_for_event(event:dict):
 
     # project=get_item(projectIDtask)  
     # pprint(project)
-    projectIDtask=event['UF_CRM_CAL_EVENT'][0] # T89_13
-    if projectIDtask==False:
+    # try:
+    projectIDtask=event.get('UF_CRM_CAL_EVENT') # T89_13
+    if projectIDtask is None:
         projectLastID=get_last_project_for_sotrudnik(event['CREATED_BY'])
         projectIDtask=f'T9e_{projectLastID}' # T89 просто для целосности данных
         update_event(event['ID'], {'UF_CRM_CAL_EVENT': [projectIDtask]})
+    else:
+        projectIDtask=projectIDtask[0]
 
     duration=event['DT_LENGTH']
     duration=duration/3600
@@ -375,7 +378,7 @@ def create_billing_for_event(event:dict):
             code.startswith('U')
         except:
             code='U'+event['CREATED_BY']
-            
+
         if code.startswith('U'):
             userID=code.replace('U','')
             
