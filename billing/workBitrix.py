@@ -355,10 +355,10 @@ def create_billing_for_event(event:dict):
     # pprint(project)
     # try:
     projectIDtask=event.get('UF_CRM_CAL_EVENT') # T89_13
-    if projectIDtask is False:
-        projectLastID=get_last_project_for_sotrudnik(event['CREATED_BY'])
-        projectIDtask=f'T9e_{projectLastID}' # T89 просто для целосности данных
-        update_event(event['ID'], {'UF_CRM_CAL_EVENT': [projectIDtask]})
+    if projectIDtask is False: return 0
+        # projectLastID=get_last_project_for_sotrudnik(event['CREATED_BY'])
+        # projectIDtask=f'T9e_{projectLastID}' # T89 просто для целосности данных
+        # update_event(event['ID'], {'UF_CRM_CAL_EVENT': [projectIDtask]})
     else:
         projectIDtask=projectIDtask[0]
 
@@ -454,7 +454,7 @@ def create_billing_for_trydozatrary():
 
 
 def get_calendar_event(eventID:str):
-    randomSecond=random.randint(0, 3)
+    randomSecond=random.random(0, 3)
     time.sleep(randomSecond)
     event = bit.call('calendar.event.getbyid', items={'id': eventID})
     return event
