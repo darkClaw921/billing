@@ -1,3 +1,4 @@
+import time
 import redisWork
 from flask import Flask, request, render_template
 from flask_restx import Api, Resource, fields
@@ -50,9 +51,10 @@ class task_entity(Resource):
 class task_entity(Resource):
     def post(self,):
         """Обновление сущности"""
+        
         data = request.form
         pprint(data)
-        
+
         eventID=data['data[id]']
         # enityID=data['data[FIELDS][ENTITY_TYPE_ID]']
         print(f"{eventID=}")
