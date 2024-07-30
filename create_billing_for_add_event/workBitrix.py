@@ -355,6 +355,7 @@ def create_billing_for_event(event:dict):
     # pprint(project)
     # try:
     projectIDtask=event.get('UF_CRM_CAL_EVENT') # T89_13
+    print(f'{projectIDtask=}')
     if projectIDtask is False: return 0
         # projectLastID=get_last_project_for_sotrudnik(event['CREATED_BY'])
         # projectIDtask=f'T9e_{projectLastID}' # T89 просто для целосности данных
