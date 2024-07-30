@@ -53,7 +53,7 @@ class BillingItem:
     trydozatrary:str='ufCrm17Duration'
     trydozatratyKoplate:str='ufCrm17Durationbillable'
     stavka:str='None'
-    project:str='parentId158'
+    project:str='parentId143'
     assigned:str='assignedById'
     
     
