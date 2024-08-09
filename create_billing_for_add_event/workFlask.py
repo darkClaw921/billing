@@ -8,7 +8,7 @@ from workBitrix import get_task_work_time, create_item, get_crm_task, \
     prepare_crm_task,get_task_elapseditem_getlist, \
     update_report_for_item, get_billing_items, BillingItem, \
     create_billing_for_event,get_calendar_event, \
-    update_project_for_sotrudnik
+    update_project_for_sotrudnik,update_billing_for_event
     
 
 app = Flask(__name__)
@@ -71,14 +71,28 @@ class task_entity(Resource):
             data = request_queue.get()
 
             eventID = data['data[id]']
-            print(f"{eventID=}")
-            event = get_calendar_event(eventID)
-            pprint(event)
-            create_billing_for_event(event=event)
+            event= data['event'] 
+            if event == 'ONCALENDARENTRYADD':
+
+                print(f"{eventID=}")
+                event = get_calendar_event(eventID)
+                pprint(event)
+                create_billing_for_event(event=event)
 
             # Сигнализация о том, что задача обработана
-            request_queue.task_done()
-    
+                request_queue.task_done()
+            
+            if event == 'ONCALENDARENTRYUPDATE':
+                print(f"{eventID=}")
+                event = get_calendar_event(eventID)
+                pprint(event)
+
+                update_billing_for_event(event=event)
+                # create_billing_for_event(event=event)
+                request_queue.task_done()
+
+
+
     def get(self,):
         """Обновление сущности"""
         pprint(request)

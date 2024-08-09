@@ -396,6 +396,87 @@ def create_billing_for_event(event:dict):
             create_billing_item(fields)
 
 
+def find_billing(assignedID:int, title:str, dateClose:str)->list:
+    # dateClose=dateClose.split(' ')[0].split('.')
+    # dateClose=f"{dateClose[2]}-{dateClose[1]}-{dateClose[0]}T00:00:00"
+
+
+    billing = bit.call('crm.item.list', items={'filter': 
+                                             {'ENTITY_TYPE_ID':BILLING_ITEM_ID,
+                                              'ASSIGNED_BY_ID':assignedID,
+                                              'TITLE':title,
+                                              BillingItem.dateClose:dateClose}}, raw=True)['result']
+    return billing
+
+
+
+
+def update_billing_for_event(event:dict):
+
+    projectIDtask=event.get('UF_CRM_CAL_EVENT') # T89_13
+    print(f'{projectIDtask=}')
+    if projectIDtask is False: return 0
+ 
+    else:
+        projectIDtask=projectIDtask[0]
+
+    duration=event['DT_LENGTH']
+    duration=duration/3600
+    duration=round(duration, 1)
+
+    title=event['NAME']
+    dateClose=event['DATE_FROM']
+
+    
+    dateClose=dateClose.split(' ')[0].split('.')
+    dateClose=f"{dateClose[2]}-{dateClose[1]}-{dateClose[0]}T00:00:00"
+
+    ATTENDEES_CODES=event['ATTENDEES_CODES']
+    for code in ATTENDEES_CODES:
+        
+        try:
+            code.startswith('U')
+        except:
+            code='U'+event['CREATED_BY']
+
+        if code.startswith('U'):
+            userID=code.replace('U','')
+            billing = find_billing(assignedID=code, title=title, dateClose=dateClose)
+            if billing==[]:
+                
+                fields={
+                    # BillingItem.assigned: event['CREATED_BY'],
+                    BillingItem.assigned: userID,
+                    BillingItem.title: title,
+                    BillingItem.trydozatrary: duration,
+                    BillingItem.dateClose: dateClose,
+                    BillingItem.project: projectIDtask.split('_')[1],
+                }
+                pprint(fields)
+                create_billing_item(fields=fields)
+                print('Нет такого человека создаем биллинг')
+            else:
+                fields={
+                    # BillingItem.assigned: event['CREATED_BY'],
+                    # BillingItem.assigned: userID,
+                    # BillingItem.title: title,
+                    BillingItem.trydozatrary: duration,
+                    BillingItem.dateClose: dateClose,
+                    # BillingItem.project: projectIDtask.split('_')[1],
+                }
+                print('Есть такой человек обновляем биллинг')
+                update_billing(billing[0]['ID'], fields=fields)
+                
+
+   
+    pass
+
+
+def update_billing(billingID:str, fields:dict):
+    bit.call('crm.item.update', items={'entityTypeId':BILLING_ITEM_ID, 
+                                       'id': billingID, 
+                                       'fields':fields})
+
 def create_billing_for_trydozatrary():
 
     # pass
@@ -558,84 +639,10 @@ async def main():
     print('done')
 # https://test-6-may.bitrix24.ru/rest/1/q62k8mchz97yjwap/calendar.event.add.json?type=user&to=2024-05-28+12:00&ownerId=1&FROM=2024-05-28+11:00&section=4&name=wee&is_meeting=Y&UF_CRM_CAL_EVENT%5B0%5D=1&start=0
 if __name__ == '__main__':
-    # main()
-    # asyncio.run(main())
-    # project=bit.call('crm.item.get', items={'entityTypeId':137,'id': 242}, raw=True)['result']['item']
-    # pprint(project)
-    # tarif=bit.call('crm.item.get', items={'entityTypeId':158,'id': 12}, raw=True)['result']['item']
-    # pprint(tarif)
-    # billing=bit.call('crm.item.get', items={'entityTypeId':160,'id': 288}, raw=True)['result']['item']
-    # pprint(billing)
-    # users = bit.call('user.get', items={'id':'3'},raw=True)['result']
-    # pprint(users)
 
-    billings=bit.get_all('crm.item.list', params={'entityTypeId':160,'filter':{
-        "parentId137": 242,
-        '>=ufCrm16Date':'2024-05-01T00:00:00',
-        '<=ufCrm16Date':'2024-06-30T00:00:00',
-        'stageId':'DT160_26:PREPARATION'
-
-    }})
-    pprint(billings)
-    print(len(billings))
-    # event=get_all_calendar_events()
-    # event=get_calendar_event('43')
-    # # update_event(event=event,fields={'UF_CRM_CAL_EVENT': [61]})
-    # update_event(event=event,projectID=[61])
-    # print(bit2.callMethod('crm.product.list'))
-    
-    # a = bit.callMethod('calendar.event.add', type='company_calendar', 
-    #         to = f'{date.year}-{date.month}-{day} {endTime}',
-
-    #         ownerId=' ',#10
-    #         FROM=f'{date.year}-{date.month}-{day} {time}',
-    #         section=1,#8
-    #         name=f'',
-    #         location='Зал 1',
-    #         is_meeting='Y',
-    #         #description=callBack,
-    #         #attendees=[10,6,226,240],
-    #         UF_CRM_CAL_EVENT=[226,240],
-
-    #         #imeeting={'UF_CRM_CAL_EVENT':'C_226'}
-    #         )
-    # a=bit.call('calendar.resource.list',items={'id':1})
-    # pprint(a)
-    # pprint(event)
-    # create_entity('userEnt', {'NAME':'test'})
-    # projectID,itemSotrudnikID=get_last_project_for_sotrudnik('23')
-    # update_project_for_sotrudnik('23', '61')
-    # pprint(projectID)
-
-    # create_billing_for_event(event)
-    # main()
-    # billingItems=get_billing_items(userID=1)
-    # pprint(billingItems)
-    # task=get_task(11)
-    # pprint(task)
-    # pprint(billingItems)
-    # allduration=0
-    # for item in billingItems:
-    #     allduration+=int(item[BillingItem.trydozatrary])
-    # allduration=allduration/3600
-    # allduration=round(allduration, 1)
-    # pprint(allduration)
-    # print(get_last_day_of_month())
-    # endDateMonth=datetime.now().replace(day=1, hour=0,minute=0,second=0)-timedelta(days=1)
-    # pprint(endDateMonth.isoformat(timespec='seconds'))
-    # tasks=get_crm_task('T89_13')
-    # p=prepare_crm_task(tasks)
-    # update_tasks_for_item(137, 13, p)
-
-
-    # taskID=5
-    # works=get_task_work_time(taskID)
-    # for work in works:
-    #     # print(work['COMMENT_TEXT'])
-    #     duration=work['SECONDS']
-    #     title=work['COMMENT_TEXT']
-    #     create_item(duration, taskID, title)
-    
+    eventt=get_calendar_event('227')
+    pprint(eventt)
+  
     
 
 
