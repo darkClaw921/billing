@@ -693,11 +693,13 @@ def create_billing_for_task(taskID:int):
         print(f'{billingID=}')
         billings.append(billingID)
     
-    add_billings_to_task(taskID=taskID, taskCrm=task['ufCrmTask'], billings=billings)
-    
     fields={Task.check_have_update_up:'1'}
     pprint(fields)
     task = bit.call('tasks.task.update', {'taskId': taskID, 'fields':fields}, raw=True)
+    
+    add_billings_to_task(taskID=taskID, taskCrm=task['ufCrmTask'], billings=billings)
+    
+    
 
 
 import asyncio
