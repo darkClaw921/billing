@@ -60,7 +60,8 @@ class BillingItem:
 class Task:
     id:str='id'
     title:str='title'
-    check_have_update:str='ufAuto519193582570'
+    check_have_update_up:str='UF_AUTO_519193582570'
+    check_have_update_lower:str='ufAuto519193582570'
     
 
 @dataclass
@@ -640,14 +641,15 @@ def create_event(event:dict):
     pprint(a)
     return a
 
-def add_billing_to_task(taskID:int, billingID:int):
+def add_billings_to_task(taskID:int, taskCrm:list, billings:list):
     #переводим биллинг в 16 ричную систему
-    billingID=f'Tad_{billingID}'
+    billings=[f'Tad_{i}' for i in billings]
+    
 
-    task=get_task(taskID) 
-    crm=task['ufCrmTask']
-    crm.append(billingID)
-    firlds={'UF_CRM_TASK':crm, Task.check_have_update:'1'}
+    # task=get_task(taskID) 
+    # crm=task['ufCrmTask']
+    taskCrm.extend(billings)
+    firlds={'UF_CRM_TASK':taskCrm}
     pprint(firlds)
     task = bit.call('tasks.task.update', {'taskId': taskID, 'fields':firlds}, raw=True)['result']
 
@@ -657,11 +659,15 @@ def create_billing_for_task(taskID:int):
     pprint(task)
     if task['closedDate'] is None :
         return 0
-    if task[Task.check_have_update] == '1':
+    if task[Task.check_have_update_lower] == '1':
         return 0
     
     durationFact=float(task['durationFact'])
-    durationFact=durationFact/3600
+    if  task['durationType'] == 'days':
+        durationFact=durationFact/60
+    else:
+        durationFact=durationFact/3600
+    
     durationFact=round(durationFact, 1)
 
     users=task['accomplices']
@@ -672,6 +678,7 @@ def create_billing_for_task(taskID:int):
     dateClose=task['closedDate'].split('T')[0]+'T00:00:00'
     # dateClose=task['closedDate']
     projectID=task['ufCrmTask'][0].split('_')[1]
+    billings=[]
     for user in users:
         fields={
             BillingItem.title: title,
@@ -684,9 +691,13 @@ def create_billing_for_task(taskID:int):
         pprint(fields)
         billingID=create_billing_item(fields)
         print(f'{billingID=}')
-        add_billing_to_task(taskID, billingID)
-
+        billings.append(billingID)
     
+    add_billings_to_task(taskID=taskID, taskCrm=task['ufCrmTask'], billings=billings)
+    
+    fields={Task.check_have_update_up:'1'}
+    pprint(fields)
+    task = bit.call('tasks.task.update', {'taskId': taskID, 'fields':fields}, raw=True)
 
 
 import asyncio
@@ -706,6 +717,8 @@ async def main():
 
 if __name__ == '__main__':
     create_billing_for_task(153)
+    # a=bit.call('tasks.task.getFields', raw=True)
+    # pprint(a)
     pass
     # eventt=get_calendar_event('231')
     # pprint(eventt)
