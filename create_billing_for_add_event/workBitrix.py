@@ -56,6 +56,11 @@ class BillingItem:
     project:str='parentId158'#umbrella
     assigned:str='assignedById'
     
+@dataclass
+class Task:
+    id:str='id'
+    title:str='title'
+    check_have_update:str='ufAuto519193582570'
     
 
 @dataclass
@@ -642,7 +647,7 @@ def add_billing_to_task(taskID:int, billingID:int):
     task=get_task(taskID) 
     crm=task['ufCrmTask']
     crm.append(billingID)
-    firlds={'UF_CRM_TASK':crm}
+    firlds={'UF_CRM_TASK':crm, Task.check_have_update:'1'}
     pprint(firlds)
     task = bit.call('tasks.task.update', {'taskId': taskID, 'fields':firlds}, raw=True)['result']
 
@@ -650,9 +655,11 @@ def create_billing_for_task(taskID:int):
 
     task=get_task(taskID)
     pprint(task)
-    if task['closedDate'] is None:
+    if task['closedDate'] is None :
         return 0
-
+    if task[Task.check_have_update] == '1':
+        return 0
+    
     durationFact=float(task['durationFact'])
     durationFact=durationFact/3600
     durationFact=round(durationFact, 1)
