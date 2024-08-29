@@ -5,7 +5,7 @@ from flask_restx import Api, Resource, fields
 from pprint import pprint  
 from datetime import datetime, timedelta
 from workBitrix import get_task_work_time, create_item, get_crm_task, \
-    create_billing_for_task,get_task_elapseditem_getlist, \
+    prepare_crm_task,get_task_elapseditem_getlist, \
     update_report_for_item, get_billing_items, BillingItem, \
     create_billing_for_event,get_calendar_event, \
     update_project_for_sotrudnik,update_billing_for_event
@@ -69,11 +69,11 @@ class task_entity(Resource):
         while not request_queue.empty():
             # Получение задачи из очереди
             data = request_queue.get()
-            event= data['event']
-            
+
+            eventID = data['data[id]']
+            event= data['event'] 
             if event == 'ONCALENDARENTRYADD':
-                eventID = data['data[id]']
-                 
+
                 print(f"{eventID=}")
                 event = get_calendar_event(eventID)
                 pprint(event)
@@ -83,7 +83,6 @@ class task_entity(Resource):
                 request_queue.task_done()
             
             if event == 'ONCALENDARENTRYUPDATE':
-                eventID = data['data[id]']
                 print(f"{eventID=}")
                 event = get_calendar_event(eventID)
                 pprint(event)
@@ -92,10 +91,7 @@ class task_entity(Resource):
                 # create_billing_for_event(event=event)
                 request_queue.task_done()
 
-            if event == 'ONTASKUPDATE':
-                taskID=data['data[FIELDS_BEFORE][ID]']
-                #если задача не закрыта то биллинг не создатся 
-                create_billing_for_task(taskID=taskID)
+
 
     def get(self,):
         """Обновление сущности"""

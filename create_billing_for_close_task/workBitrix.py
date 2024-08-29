@@ -167,7 +167,7 @@ def add_new_post_timeline(itemID, entityID, entityType):
 
 
 def get_task(taskID):
-    task = bit.call('tasks.task.get', items={'taskId': taskID, 'select':['*','UF_CRM_TASK','TITLE']}, raw=True)['result']['task']
+    task = bit.call('tasks.task.get', items={'taskId': taskID, 'select':['UF_CRM_TASK','TITLE']}, raw=True)['result']
     # pprint(task)
     return task
 
@@ -313,8 +313,7 @@ def get_task_elapseditem_getlist(date:str, userID=None):
 
 
 def create_billing_item(fields:dict):
-    id=bit.call('crm.item.add', items={'entityTypeId':BILLING_ITEM_ID, 'fields':fields},raw=True)['result']['item']['id']
-    return id
+    bit.call('crm.item.add', items={'entityTypeId':BILLING_ITEM_ID, 'fields':fields})
 
 def get_billing_items(userID:str, startDate:str, endDate:str):
     """Возвращает все записи по биллингу за месяц по пользователю
@@ -467,7 +466,7 @@ def update_billing_for_event(event:dict):
                     # BillingItem.assigned: userID,
                     # BillingItem.title: title,
                     BillingItem.trydozatrary: duration,
-
+                    
                     BillingItem.dateClose: dateClose,
                     # BillingItem.project: projectIDtask.split('_')[1],
                 }
@@ -635,53 +634,6 @@ def create_event(event:dict):
     pprint(a)
     return a
 
-def add_billing_to_task(taskID:int, billingID:int):
-    #переводим биллинг в 16 ричную систему
-    billingID=f'Tad_{billingID}'
-
-    task=get_task(taskID) 
-    crm=task['ufCrmTask']
-    crm.append(billingID)
-    firlds={'UF_CRM_TASK':crm}
-    pprint(firlds)
-    task = bit.call('tasks.task.update', {'taskId': taskID, 'fields':firlds}, raw=True)['result']
-
-def create_billing_for_task(taskID:int):
-
-    task=get_task(taskID)
-    pprint(task)
-    if task['closedDate'] is None:
-        return 0
-
-    durationFact=float(task['durationFact'])
-    durationFact=durationFact/3600
-    durationFact=round(durationFact, 1)
-
-    users=task['accomplices']
-    users.append(task['responsibleId'])
-
-    title=task['title']
-    
-    dateClose=task['closedDate'].split('T')[0]+'T00:00:00'
-    # dateClose=task['closedDate']
-    projectID=task['ufCrmTask'][0].split('_')[1]
-    for user in users:
-        fields={
-            BillingItem.title: title,
-            BillingItem.trydozatrary: durationFact,
-            BillingItem.trydozatratyKoplate: durationFact,
-            BillingItem.assigned: user,
-            BillingItem.dateClose: dateClose,
-            BillingItem.project: projectID,
-        }
-        pprint(fields)
-        billingID=create_billing_item(fields)
-        print(f'{billingID=}')
-        add_billing_to_task(taskID, billingID)
-
-    
-
-
 import asyncio
 async def main():
     # a= await bit2.callMethod('crm.product.list')
@@ -695,10 +647,7 @@ async def main():
     pprint(event1)
     print('done')
 # https://test-6-may.bitrix24.ru/rest/1/q62k8mchz97yjwap/calendar.event.add.json?type=user&to=2024-05-28+12:00&ownerId=1&FROM=2024-05-28+11:00&section=4&name=wee&is_meeting=Y&UF_CRM_CAL_EVENT%5B0%5D=1&start=0
-
-
 if __name__ == '__main__':
-    create_billing_for_task(153)
     pass
     # eventt=get_calendar_event('231')
     # pprint(eventt)
