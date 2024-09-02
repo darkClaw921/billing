@@ -709,7 +709,7 @@ def create_billing_for_task(taskID:int):
     pprint(fields)
     bit.call('tasks.task.update', {'taskId': taskID, 'fields':fields}, raw=True)
     task=get_task(taskID)
-
+    pprint(task)
     add_billings_to_task(taskID=taskID, taskCrm=task['ufCrmTask'], billings=billings)
     
     
