@@ -483,7 +483,7 @@ def update_billing_for_event(event:dict):
                     # BillingItem.assigned: userID,
                     # BillingItem.title: title,
                     BillingItem.trydozatrary: duration,
-
+                    BillingItem.trydozatratyKoplate: duration,
                     BillingItem.dateClose: dateClose,
                     # BillingItem.project: projectIDtask.split('_')[1],
                 }
