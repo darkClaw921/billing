@@ -433,8 +433,9 @@ def update_billing_for_event(event:dict):
     try:
         event=event['order0000000000']
     except:
-        projectIDtask=event.get('UF_CRM_CAL_EVENT') # T89_13
-        
+        1+0
+    projectIDtask=event.get('UF_CRM_CAL_EVENT') # T89_13
+
     print(f'{projectIDtask=}')
     if projectIDtask is False: return 0
  
