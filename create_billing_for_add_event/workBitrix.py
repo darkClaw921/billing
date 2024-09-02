@@ -653,7 +653,7 @@ def create_event(event:dict):
 
 def add_billings_to_task(taskID:int, taskCrm:list, billings:list):
     #переводим биллинг в 16 ричную систему
-    hexBilling = hex(BILLING_ITEM_ID)[2:]
+    hexBilling = hex(int(BILLING_ITEM_ID))[2:]
     # billings=[f'Tad_{i}' for i in billings]
     billings=[f'T{hexBilling}_{i}' for i in billings]
     
