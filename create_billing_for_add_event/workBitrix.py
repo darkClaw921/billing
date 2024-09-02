@@ -18,9 +18,10 @@ bit = Bitrix(webhook)
 
 BILLING_ITEM_ID=os.getenv('BILLING_ITEM_ID')
 PROJECT_ITEM_ID=os.getenv('PROJECT_ITEM_ID')
-
-
+CHECK_HAVE_UPDATE_UP_TASK=os.getenv('CHECK_HAVE_UPDATE_UP_TASK')
+CHECK_HAVE_UPDATE_LOWER_TASK=os.getenv('CHECK_HAVE_UPDATE_LOWER_TASK')
 SOTRYDNIK_ITEM_ID=0 #тут нету
+
 # TODO: нужно как-то получить id проекта автоматически а так можно посомтреть через get
 # case ['T99', itemID]:
 #ПРОЕКТЫ
@@ -58,15 +59,15 @@ class BillingItem:
     trydozatrary:str='ufCrm17Duration'
     trydozatratyKoplate:str='ufCrm17Durationbillable'
     stavka:str='None'
-    project:str='parentId158'#umbrella
+    project:str=f'parentId{PROJECT_ITEM_ID}'#umbrella
     assigned:str='assignedById'
     
 @dataclass
 class Task:
     id:str='id'
     title:str='title'
-    check_have_update_up:str='UF_AUTO_519193582570'
-    check_have_update_lower:str='ufAuto519193582570'
+    check_have_update_up:str=CHECK_HAVE_UPDATE_UP_TASK
+    check_have_update_lower:str=CHECK_HAVE_UPDATE_LOWER_TASK
     
 
 @dataclass
@@ -648,7 +649,9 @@ def create_event(event:dict):
 
 def add_billings_to_task(taskID:int, taskCrm:list, billings:list):
     #переводим биллинг в 16 ричную систему
-    billings=[f'Tad_{i}' for i in billings]
+    hexBilling = hex(BILLING_ITEM_ID)[2:]
+    # billings=[f'Tad_{i}' for i in billings]
+    billings=[f'T{hexBilling}_{i}' for i in billings]
     
 
     # task=get_task(taskID) 
