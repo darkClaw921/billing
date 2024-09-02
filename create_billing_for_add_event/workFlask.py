@@ -212,6 +212,11 @@ class report_entity(Resource):
 
 
 if __name__ == '__main__':
-    
+    # eventID='1167'    
     app.run(host='0.0.0.0',port='5006',debug=False)
+    # print(f"{eventID=}")
+    # event = get_calendar_event(eventID)
+    # pprint(event)
+
+    # update_billing_for_event(event=event)
     

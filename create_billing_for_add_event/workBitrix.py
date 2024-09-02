@@ -66,8 +66,8 @@ class BillingItem:
 class Task:
     id:str='id'
     title:str='title'
-    check_have_update_up:str=CHECK_HAVE_UPDATE_UP_TASK
-    check_have_update_lower:str=CHECK_HAVE_UPDATE_LOWER_TASK
+    check_have_update_up:str=CHECK_HAVE_UPDATE_UP_TASK.__str__()
+    check_have_update_lower:str=CHECK_HAVE_UPDATE_LOWER_TASK.__str__()
     
 
 @dataclass
