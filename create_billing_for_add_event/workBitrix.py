@@ -13,8 +13,13 @@ from helper import get_last_day_of_month
 load_dotenv()
 webhook = os.getenv('WEBHOOK')
 bit = Bitrix(webhook)
-BILLING_ITEM_ID=173
-PROJECT_ITEM_ID=158
+
+
+
+BILLING_ITEM_ID=os.getenv('BILLING_ITEM_ID')
+PROJECT_ITEM_ID=os.getenv('PROJECT_ITEM_ID')
+
+
 SOTRYDNIK_ITEM_ID=0 #тут нету
 # TODO: нужно как-то получить id проекта автоматически а так можно посомтреть через get
 # case ['T99', itemID]:
@@ -696,7 +701,7 @@ def create_billing_for_task(taskID:int):
     fields={Task.check_have_update_up:'1'}
     pprint(fields)
     task = bit.call('tasks.task.update', {'taskId': taskID, 'fields':fields}, raw=True)
-    
+
     add_billings_to_task(taskID=taskID, taskCrm=task['ufCrmTask'], billings=billings)
     
     
