@@ -450,7 +450,7 @@ def update_billing_for_event(event:dict):
 
     duration=event['DT_LENGTH']
     duration=duration/3600
-    duration=round(duration, 1)
+    duration=round(duration, 2)
 
     title=event['NAME']
     dateClose=event['DATE_FROM']
@@ -686,7 +686,7 @@ def create_billing_for_task(taskID:int):
     else:
         durationFact=durationFact/3600
     
-    durationFact=round(durationFact, 1)
+    durationFact=round(durationFact, 2)
 
     users=task['accomplices']
     users.append(task['responsibleId'])
