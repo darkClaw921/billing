@@ -571,6 +571,7 @@ def get_calendar_event(eventID:str):
         event = bit.call('calendar.event.getbyid', items={'id': eventID})
     except Exception as e:
         print(e)
+    
     return event
 
 def get_all_calendar_events():
@@ -672,7 +673,7 @@ def add_billings_to_task(taskID:int, taskCrm:list, billings:list):
     task = bit.call('tasks.task.update', {'taskId': taskID, 'fields':firlds}, raw=True)['result']
 
 def create_billing_for_task(taskID:int):
-
+    hexProject = hex(int(PROJECT_ITEM_ID))[2:]
     task=get_task(taskID)
     pprint(task)
     if task['closedDate'] is None :
@@ -695,7 +696,10 @@ def create_billing_for_task(taskID:int):
     
     dateClose=task['closedDate'].split('T')[0]+'T00:00:00'
     # dateClose=task['closedDate']
+    if not str(task['ufCrmTask'][0].split('_')[0]).startswith(f'T{hexProject}'):
+        return 0
     projectID=task['ufCrmTask'][0].split('_')[1]
+    
     billings=[]
     for user in users:
         fields={
