@@ -482,7 +482,7 @@ async def update_billing_for_event(event:dict):
                     BillingItem.project: projectIDtask.split('_')[1],
                 }
                 pprint(fields)
-                create_billing_item(fields=fields)
+                await create_billing_item(fields=fields)
                 print('Нет такого человека создаем биллинг')
             else:
                 fields={
@@ -502,8 +502,8 @@ async def update_billing_for_event(event:dict):
     pass
 
 
-def update_billing(billingID:str, fields:dict):
-    bit.call('crm.item.update', items={'entityTypeId':BILLING_ITEM_ID, 
+async def update_billing(billingID:str, fields:dict):
+    await bit.call('crm.item.update', items={'entityTypeId':BILLING_ITEM_ID, 
                                        'id': billingID, 
                                        'fields':fields})
 
