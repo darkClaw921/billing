@@ -511,7 +511,7 @@ async def update_billing_for_event(event:dict):
                 fields={
                     # BillingItem.assigned: event['CREATED_BY'],
                     # BillingItem.assigned: userID,
-                    # BillingItem.title: title,
+                    BillingItem.title: title,
                     BillingItem.trydozatrary: duration,
                     BillingItem.trydozatratyKoplate: duration,
                     BillingItem.dateClose: dateClose,
