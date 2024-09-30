@@ -22,7 +22,9 @@ BILLING_ITEM_ID=os.getenv('BILLING_ITEM_ID')
 PROJECT_ITEM_ID=os.getenv('PROJECT_ITEM_ID')
 CHECK_HAVE_UPDATE_UP_TASK=os.getenv('CHECK_HAVE_UPDATE_UP_TASK')
 CHECK_HAVE_UPDATE_LOWER_TASK=os.getenv('CHECK_HAVE_UPDATE_LOWER_TASK')
+BILLING_ID_EVENT=os.getenv('BILLING_ID_EVENT')
 SOTRYDNIK_ITEM_ID=0 #тут нету
+
 
 # TODO: нужно как-то получить id проекта автоматически а так можно посомтреть через get
 # case ['T99', itemID]:
@@ -63,6 +65,7 @@ class BillingItem:
     stavka:str='None'
     project:str=f'parentId{PROJECT_ITEM_ID}'#umbrella
     assigned:str='assignedById'
+    eventID:str='ufCrm17EventId'
     
 @dataclass
 class Task:
@@ -123,7 +126,6 @@ def find_lead(leadID:str):
     lead = bit.call('crm.lead.get', params={'id': leadID})
     return lead
 
-
 def get_deals():
     prepareDeal=[]
     deals = bit.call('crm.deal.list', items={'filter': 
@@ -180,8 +182,9 @@ def add_new_post_timeline(itemID, entityID, entityType):
                                 Test comment [URL=/crm/deal/details/26/]test123[/URL]""",}}) #для ссылки в нутри битрикса
 
 
-def get_task(taskID):
-    task = bit.call('tasks.task.get', items={'taskId': taskID, 'select':['*','UF_CRM_TASK','TITLE']}, raw=True)['result']['task']
+async def get_task(taskID):
+    task = await bit.call('tasks.task.get', items={'taskId': taskID, 'select':['*','UF_CRM_TASK','TITLE']}, raw=True)
+    task=task['result']['task']
     # pprint(task)
     return task
 
@@ -330,7 +333,7 @@ async def create_billing_item(fields:dict):
     logger.debug(f'Создаем биллинг на основании {fields=}')
     id1= await bit.call('crm.item.add', items={'entityTypeId':BILLING_ITEM_ID, 'fields':fields})
     print(f'{id1=}')
-    id1=id1['item']['id']
+    id1=id1['id']
 
     return id1
 
@@ -417,20 +420,23 @@ async def create_billing_for_event(event:dict):
                 BillingItem.trydozatratyKoplate: duration,
                 BillingItem.dateClose: dateClose,
                 BillingItem.project: projectIDtask.split('_')[1],
+                BillingItem.eventID: event['ID'],                
             }
             # pprint(fields)
             logger.info(f'{fields=}')
             await create_billing_item(fields)
 
 
-async def find_billing(assignedID:int, title:str, dateClose:str)->list:
+async def find_billing(assignedID:int, title:str, dateClose:str, eventID:str)->list:
     # dateClose=dateClose.split(' ')[0].split('.')
     # dateClose=f"{dateClose[2]}-{dateClose[1]}-{dateClose[0]}T00:00:00"
     param={'entityTypeId':BILLING_ITEM_ID, \
                                                'filter': {
                                               'assignedById': assignedID,
-                                              'title':title,
-                                              BillingItem.dateClose:dateClose}}
+                                            #   'title':title,
+                                              BillingItem.eventID:eventID,
+                                            #   BillingItem.dateClose:dateClose
+                                              }}
     pprint(param)
 
     billing = await bit.get_all('crm.item.list', params=param)
@@ -447,7 +453,7 @@ async def update_billing_for_event(event:dict):
         1+0
     projectIDtask=event.get('UF_CRM_CAL_EVENT') # T89_13
 
-    print(f'{projectIDtask=}')
+    # print(f'{projectIDtask=}')
     if projectIDtask is False: return 0
  
     else:
@@ -460,12 +466,12 @@ async def update_billing_for_event(event:dict):
     title=event['NAME']
     dateClose=event['DATE_FROM']
     # pprint(event)
-    print(f'{dateClose=}')
+    # print(f'{dateClose=}')
 
     
     dateClose=dateClose.split(' ')[0].split('.')
     dateClose=f"{dateClose[2]}-{dateClose[1]}-{dateClose[0]}"
-
+    eventID=event['ID']
     ATTENDEES_CODES=event['ATTENDEES_CODES']
     for code in ATTENDEES_CODES:
         try:
@@ -476,7 +482,7 @@ async def update_billing_for_event(event:dict):
         if code.startswith('U'):
             userID=code.replace('U','')
             logger.info(f'Ищем биллинг assignedID={userID}, {title=}, {dateClose=}')
-            billing = await find_billing(assignedID=userID, title=title, dateClose=dateClose)
+            billing = await find_billing(assignedID=userID, title=title, dateClose=dateClose, eventID=event['ID'])
             # logger.info(f'Нашли {billing=}')
             if billing==[]:
                 
@@ -488,6 +494,7 @@ async def update_billing_for_event(event:dict):
                     BillingItem.trydozatratyKoplate: duration,
                     BillingItem.dateClose: dateClose,
                     BillingItem.project: projectIDtask.split('_')[1],
+                    BillingItem.eventID: eventID,
                 }
                 # pprint(fields)
                 logger.info(f'Нет такого биллига создаем биллинг "{title}" на {dateClose}')
@@ -518,6 +525,9 @@ async def update_billing_for_event(event:dict):
                     
                 except Exception as e:
                     logger.error(f'не удалось обновить биллинг "{title}" {e}')
+                    logger.error(traceback.format_exc())
+                    logger.error(traceback.print_exc())
+                    
                 
 
    
@@ -667,7 +677,7 @@ def create_event(event:dict):
     # return a
     pass
 
-def add_billings_to_task(taskID:int, taskCrm:list, billings:list):
+async def add_billings_to_task(taskID:int, taskCrm:list, billings:list):
     #переводим биллинг в 16 ричную систему
     hexBilling = hex(int(BILLING_ITEM_ID))[2:]
     # billings=[f'Tad_{i}' for i in billings]
@@ -679,11 +689,12 @@ def add_billings_to_task(taskID:int, taskCrm:list, billings:list):
     taskCrm.extend(billings)
     firlds={'UF_CRM_TASK':taskCrm}
     pprint(firlds)
-    task = bit.call('tasks.task.update', {'taskId': taskID, 'fields':firlds}, raw=True)['result']
+    task = await bit.call('tasks.task.update', {'taskId': taskID, 'fields':firlds}, raw=True)
+    # ['result']
 
-def create_billing_for_task(taskID:int):
+async def create_billing_for_task(taskID:int):
     hexProject = hex(int(PROJECT_ITEM_ID))[2:]
-    task=get_task(taskID)
+    task=await get_task(taskID)
     pprint(task)
     if task['closedDate'] is None :
         return 0
@@ -720,16 +731,16 @@ def create_billing_for_task(taskID:int):
             BillingItem.project: projectID,
         }
         pprint(fields)
-        billingID=create_billing_item(fields)
+        billingID= await create_billing_item(fields)
         print(f'{billingID=}')
         billings.append(billingID)
     
     fields={Task.check_have_update_up:'1'}
     pprint(fields)
-    bit.call('tasks.task.update', {'taskId': taskID, 'fields':fields}, raw=True)
-    task=get_task(taskID)
+    await bit.call('tasks.task.update', {'taskId': taskID, 'fields':fields})
+    task=await get_task(taskID)
     pprint(task)
-    add_billings_to_task(taskID=taskID, taskCrm=task['ufCrmTask'], billings=billings)
+    await add_billings_to_task(taskID=taskID, taskCrm=task['ufCrmTask'], billings=billings)
     
     
 

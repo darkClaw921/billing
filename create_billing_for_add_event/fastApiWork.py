@@ -86,7 +86,7 @@ async def update_event(request: Request):
 
     elif event == 'ONTASKUPDATE':
         taskID = data['data[FIELDS_BEFORE][ID]']
-        create_billing_for_task(taskID=taskID)
+        await create_billing_for_task(taskID=taskID)
 
     return JSONResponse(content={'message': 'OK'})
 
