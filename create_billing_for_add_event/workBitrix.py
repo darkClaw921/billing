@@ -325,8 +325,8 @@ def get_task_elapseditem_getlist(date:str, userID=None):
 
 
 async def create_billing_item(fields:dict):
-    id= await bit.call('crm.item.add', items={'entityTypeId':BILLING_ITEM_ID, 'fields':fields},raw=True)['result']['item']['id']
-    return id
+    id1= await bit.call('crm.item.add', items={'entityTypeId':BILLING_ITEM_ID, 'fields':fields},raw=True)['result']['item']['id']
+    return id1
 
 def get_billing_items(userID:str, startDate:str, endDate:str):
     """Возвращает все записи по биллингу за месяц по пользователю
@@ -506,6 +506,7 @@ async def update_billing(billingID:str, fields:dict):
     await bit.call('crm.item.update', items={'entityTypeId':BILLING_ITEM_ID, 
                                        'id': billingID, 
                                        'fields':fields})
+    return 0
 
 def create_billing_for_trydozatrary():
 
