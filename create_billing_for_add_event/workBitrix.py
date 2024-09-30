@@ -477,6 +477,7 @@ def update_billing_for_event(event:dict):
                     BillingItem.assigned: userID,
                     BillingItem.title: title,
                     BillingItem.trydozatrary: duration,
+                    BillingItem.trydozatratyKoplate: duration,
                     BillingItem.dateClose: dateClose,
                     BillingItem.project: projectIDtask.split('_')[1],
                 }
@@ -552,7 +553,7 @@ def create_billing_for_trydozatrary():
         project=get_item(projectIDtask)  
         pprint(project)
         duration=duration/3600
-        duration=round(duration, 1)
+        duration=round(duration, 2)
         
         fields={
             BillingItem.assigned: userID,
@@ -569,10 +570,12 @@ def get_calendar_event(eventID:str):
     time.sleep(randomSecond)
     try:
         event = bit.call('calendar.event.getbyid', items={'id': eventID})
+        return event
     except Exception as e:
-        print(e)
-    
-    return event
+        # print(e)
+        print(f"не удалось получить эвент для {eventID}")
+        return -1 
+    # return event
 
 def get_all_calendar_events():
     events = bit.call('calendar.event.get', items={
