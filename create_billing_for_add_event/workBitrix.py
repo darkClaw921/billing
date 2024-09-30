@@ -327,6 +327,7 @@ def get_task_elapseditem_getlist(date:str, userID=None):
 
 
 async def create_billing_item(fields:dict):
+    logger.debug(f'Создаем биллинг на основании {fields=}')
     id1= await bit.call('crm.item.add', items={'entityTypeId':BILLING_ITEM_ID, 'fields':fields},raw=True)['result']['item']['id']
     return id1
 
@@ -485,11 +486,11 @@ async def update_billing_for_event(event:dict):
                     BillingItem.project: projectIDtask.split('_')[1],
                 }
                 # pprint(fields)
-                logger.info(f'Нет такого биллига создаем биллинг {title} на {dateClose}')
+                logger.info(f'Нет такого биллига создаем биллинг "{title}" на {dateClose}')
                 try:
                     await create_billing_item(fields=fields)
                 except Exception as e:
-                    logger.error(f'не удалось создать биллинг {title} {e.with_traceback()}')
+                    logger.error(f'не удалось создать биллинг "{title}" {e}')
                     
                     
             else:
@@ -503,13 +504,13 @@ async def update_billing_for_event(event:dict):
                     BillingItem.project: projectIDtask.split('_')[1],
                 }
                 # print('Есть такой человек обновляем биллинг')
-                logger.info(f'Есть такой биллинг обновляем {title} на {dateClose}')
+                logger.info(f'Есть такой биллинг обновляем "{title}" на {dateClose}')
                 try:
                     logger.warning(billing)
                     await update_billing(billing[0]['id'], fields=fields)
                     
                 except Exception as e:
-                    logger.error(f'не удалось обновить биллинг {title} {e.with_traceback()}')
+                    logger.error(f'не удалось обновить биллинг "{title}" {e}')
                 
 
    
