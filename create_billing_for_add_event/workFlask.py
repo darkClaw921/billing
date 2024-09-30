@@ -9,7 +9,7 @@ from workBitrix import get_task_work_time, create_item, get_crm_task, \
     update_report_for_item, get_billing_items, BillingItem, \
     create_billing_for_event,get_calendar_event, \
     update_project_for_sotrudnik,update_billing_for_event
-    
+import asyncio
 
 app = Flask(__name__)
 api = Api(app, version='1.0', title='pkGroup API',description='A pkGroup API billing',)
@@ -51,7 +51,7 @@ class task_entity(Resource):
 
 @api.route('/event')
 class task_entity(Resource):
-    def post(self):
+    async def post(self):
         """Обновление сущности"""
         data = request.form
         pprint(data)
@@ -60,11 +60,11 @@ class task_entity(Resource):
         request_queue.put(data)
 
         # Обработка задачи
-        self.process_queue()
+        await self.process_queue()
 
         return 'OK'
 
-    def process_queue(self):
+    async def process_queue(self):
         """Обработка элементов из очереди"""
         while not request_queue.empty():
             # Получение задачи из очереди
@@ -75,7 +75,7 @@ class task_entity(Resource):
                 eventID = data['data[id]']
                  
                 print(f"{eventID=}")
-                event = get_calendar_event(eventID)
+                event = await get_calendar_event(eventID)
                 pprint(event)
                 create_billing_for_event(event=event)
 
@@ -85,7 +85,7 @@ class task_entity(Resource):
             if event == 'ONCALENDARENTRYUPDATE':
                 eventID = data['data[id]']
                 print(f"{eventID=}")
-                event = get_calendar_event(eventID)
+                event = await get_calendar_event(eventID)
                 pprint(event)
 
                 update_billing_for_event(event=event)
@@ -209,14 +209,16 @@ class report_entity(Resource):
         
     #     return 'OK'
 
-
+async def a():
+    eventID='1122'    
+    print(f"{eventID=}")
+    event = await get_calendar_event(eventID)
+    pprint(event)
 
 if __name__ == '__main__':
-    # eventID='1167'    
+    # asyncio.run(a())
     app.run(host='0.0.0.0',port='5006',debug=False)
-    # print(f"{eventID=}")
-    # event = get_calendar_event(eventID)
-    # pprint(event)
+    
 
     # update_billing_for_event(event=event)
     
