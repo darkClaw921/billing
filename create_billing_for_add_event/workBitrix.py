@@ -491,7 +491,7 @@ def update_billing_for_event(event:dict):
                     BillingItem.trydozatrary: duration,
                     BillingItem.trydozatratyKoplate: duration,
                     BillingItem.dateClose: dateClose,
-                    # BillingItem.project: projectIDtask.split('_')[1],
+                    BillingItem.project: projectIDtask.split('_')[1],
                 }
                 print('Есть такой человек обновляем биллинг')
                 update_billing(billing[0]['id'], fields=fields)
