@@ -324,8 +324,8 @@ def get_task_elapseditem_getlist(date:str, userID=None):
     return tasks
 
 
-def create_billing_item(fields:dict):
-    id=bit.call('crm.item.add', items={'entityTypeId':BILLING_ITEM_ID, 'fields':fields},raw=True)['result']['item']['id']
+async def create_billing_item(fields:dict):
+    id= await bit.call('crm.item.add', items={'entityTypeId':BILLING_ITEM_ID, 'fields':fields},raw=True)['result']['item']['id']
     return id
 
 def get_billing_items(userID:str, startDate:str, endDate:str):
@@ -361,7 +361,7 @@ def get_billing_items(userID:str, startDate:str, endDate:str):
 def update_event(eventID:str, fields:dict):
     bit.call('calendar.event.update', items={'id': eventID, 'fields': fields})
 
-def create_billing_for_event(event:dict):
+async def create_billing_for_event(event:dict):
 
 
     # project=get_item(projectIDtask)  
@@ -413,7 +413,7 @@ def create_billing_for_event(event:dict):
                 BillingItem.project: projectIDtask.split('_')[1],
             }
             pprint(fields)
-            create_billing_item(fields)
+            await create_billing_item(fields)
 
 
 async def find_billing(assignedID:int, title:str, dateClose:str)->list:

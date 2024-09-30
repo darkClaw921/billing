@@ -17,6 +17,11 @@ from workBitrix import (
 import asyncio
 from dotenv import load_dotenv
 import os
+from loguru import logger
+
+# log = logger()
+from loguru import logger
+logger.add("logs/createBilling_{time}.log",format="{time} - {level} - {message}", rotation="100 MB", retention="10 days", level="DEBUG")
 
 load_dotenv()
 
@@ -68,15 +73,16 @@ async def update_event(request: Request):
         eventID = data['data[id]']
         print(f"{eventID=}")
         event = await get_calendar_event(eventID)
-        pprint(event)
-        create_billing_for_event(event=event)
+        # pprint(event)
+        await create_billing_for_event(event=event)
 
     elif event == 'ONCALENDARENTRYUPDATE':
         eventID = data['data[id]']
         print(f"{eventID=}")
         event = await get_calendar_event(eventID)
-        pprint(event)
+        # pprint(event)
         await update_billing_for_event(event=event)
+        
 
     elif event == 'ONTASKUPDATE':
         taskID = data['data[FIELDS_BEFORE][ID]']
