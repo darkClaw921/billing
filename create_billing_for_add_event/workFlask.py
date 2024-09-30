@@ -121,7 +121,7 @@ class task_entity(Resource):
             eventID = data['data[id]']
                 
             print(f"{eventID=}")
-            event = asyncio.runt(get_calendar_event(eventID))
+            event = asyncio.run(get_calendar_event(eventID))
             pprint(event)
             create_billing_for_event(event=event)
 
@@ -132,7 +132,7 @@ class task_entity(Resource):
             eventID = data['data[id]']
             print(f"{eventID=}")
             # event = await get_calendar_event(eventID)
-            event = asyncio.runt(get_calendar_event(eventID))
+            event = asyncio.run(get_calendar_event(eventID))
             pprint(event)
 
             update_billing_for_event(event=event)
