@@ -430,11 +430,7 @@ async def find_billing(assignedID:int, title:str, dateClose:str)->list:
                                               BillingItem.dateClose:dateClose}}
     pprint(param)
 
-    billing = await bit.get_all('crm.item.list', params={'entityTypeId':BILLING_ITEM_ID, \
-                                               'filter': {
-                                              'assignedById': assignedID,
-                                              'title':title,
-                                              BillingItem.dateClose:dateClose}})
+    billing = await bit.get_all('crm.item.list', params=param)
     return billing
 
 
@@ -473,9 +469,9 @@ async def update_billing_for_event(event:dict):
 
         if code.startswith('U'):
             userID=code.replace('U','')
-            logger.info(f'ищем биллинг assignedID={userID}, {title=}, {dateClose=}')
+            logger.info(f'Ищем биллинг assignedID={userID}, {title=}, {dateClose=}')
             billing = await find_billing(assignedID=userID, title=title, dateClose=dateClose)
-            
+            logger.info(f'Нашли {billing=}')
             if billing==[]:
                 
                 fields={
