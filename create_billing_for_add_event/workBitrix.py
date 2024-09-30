@@ -513,7 +513,7 @@ async def update_billing_for_event(event:dict):
                 # print('Есть такой человек обновляем биллинг')
                 logger.info(f'Есть такой биллинг обновляем "{title}" на {dateClose}')
                 try:
-                    logger.warning(billing)
+                    # logger.warning(billing)
                     await update_billing(billing[0]['id'], fields=fields)
                     
                 except Exception as e:
