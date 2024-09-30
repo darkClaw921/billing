@@ -328,8 +328,10 @@ def get_task_elapseditem_getlist(date:str, userID=None):
 
 async def create_billing_item(fields:dict):
     logger.debug(f'Создаем биллинг на основании {fields=}')
-    id1= await bit.call('crm.item.add', items={'entityTypeId':BILLING_ITEM_ID, 'fields':fields})['item']['id']
+    id1= await bit.call('crm.item.add', items={'entityTypeId':BILLING_ITEM_ID, 'fields':fields})
     print(f'{id1=}')
+    id1=id1['item']['id']
+
     return id1
 
 def get_billing_items(userID:str, startDate:str, endDate:str):
