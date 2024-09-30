@@ -415,7 +415,7 @@ async def create_billing_for_event(event:dict):
                 BillingItem.dateClose: dateClose,
                 BillingItem.project: projectIDtask.split('_')[1],
             }
-            pprint(fields)
+            # pprint(fields)
             logger.info(f'{fields=}')
             await create_billing_item(fields)
 
@@ -431,7 +431,7 @@ async def find_billing(assignedID:int, title:str, dateClose:str)->list:
     pprint(param)
 
     billing = await bit.get_all('crm.item.list', params=param)
-    pprint(billing)
+    # pprint(billing)
     return billing
 
 
@@ -456,7 +456,7 @@ async def update_billing_for_event(event:dict):
 
     title=event['NAME']
     dateClose=event['DATE_FROM']
-    pprint(event)
+    # pprint(event)
     print(f'{dateClose=}')
 
     
@@ -474,7 +474,7 @@ async def update_billing_for_event(event:dict):
             userID=code.replace('U','')
             logger.info(f'Ищем биллинг assignedID={userID}, {title=}, {dateClose=}')
             billing = await find_billing(assignedID=userID, title=title, dateClose=dateClose)
-            logger.info(f'Нашли {billing=}')
+            # logger.info(f'Нашли {billing=}')
             if billing==[]:
                 
                 fields={
@@ -750,7 +750,7 @@ if __name__ == '__main__':
     # create_billing_for_task(153)
     # a=bit.call('tasks.task.getFields', raw=True)
     # pprint(a)
-    asyncio.run(find_billing(assignedID=23,
+    asyncio.run(find_billing(assignedID='23',
                              title='тест2',
                              dateClose='2024-05-23'))
     pass
