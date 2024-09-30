@@ -13,7 +13,7 @@ from helper import get_last_day_of_month
 load_dotenv()
 webhook = os.getenv('WEBHOOK')
 bit = Bitrix(webhook)
-
+import traceback
 from loguru import logger
 logger.add("logs/workBitrix_{time}.log",format="{time} - {level} - {message}", rotation="100 MB", retention="10 days", level="DEBUG")
 
@@ -473,7 +473,9 @@ async def update_billing_for_event(event:dict):
 
         if code.startswith('U'):
             userID=code.replace('U','')
+            logger.info(f'ищем биллинг assignedID={userID}, {title=}, {dateClose=}')
             billing = await find_billing(assignedID=userID, title=title, dateClose=dateClose)
+            
             if billing==[]:
                 
                 fields={
@@ -488,9 +490,12 @@ async def update_billing_for_event(event:dict):
                 # pprint(fields)
                 logger.info(f'Нет такого биллига создаем биллинг "{title}" на {dateClose}')
                 try:
+
                     await create_billing_item(fields=fields)
                 except Exception as e:
                     logger.error(f'не удалось создать биллинг "{title}" {e}')
+                    logger.error(traceback.format_exc())
+                    logger.error(traceback.print_exc())
                     
                     
             else:
@@ -654,28 +659,11 @@ def create_event(event:dict):
     # }
     # to = prepare_date(event['DATE_TO']),
     # print(to)
-    a = bit2.callMethod('calendar.event.add', 
-            type='user', 
-            to = prepare_date(event['DATE_TO']),
-            ownerId='1',#10
-            From=prepare_date(event['DATE_FROM']),
-            section=4,#8
-            name=event['NAME'],
-            # location='Зал 1',
-            is_meeting='Y',
-            
-            #description=callBack,
-            #attendees=[10,6,226,240],
-            attendees=[1,2],
-            UF_CRM_CAL_EVENT=["C_2"],
-            ufCrmCalEvent='D_2',
-
-            #imeeting={'UF_CRM_CAL_EVENT':'C_226'}
-            )
-    
+    # a = bit2./
     # eventID=bit.call('calendar.event.add', items=items, raw=True)['result']x
-    pprint(a)
-    return a
+    # pprint(a)
+    # return a
+    pass
 
 def add_billings_to_task(taskID:int, taskCrm:list, billings:list):
     #переводим биллинг в 16 ричную систему
