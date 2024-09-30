@@ -450,7 +450,7 @@ def update_billing_for_event(event:dict):
 
     duration=event['DT_LENGTH']
     duration=duration/3600
-    duration=round(duration, 2)
+    duration=round(duration, 3)
 
     title=event['NAME']
     dateClose=event['DATE_FROM']
