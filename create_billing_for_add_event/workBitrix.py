@@ -384,7 +384,7 @@ def create_billing_for_event(event:dict):
 
     duration=event['DT_LENGTH']
     duration=duration/3600
-    duration=round(duration, 1)
+    duration=round(duration, 2)
 
     title=event['NAME']
     dateClose=event['DATE_FROM']
@@ -408,6 +408,7 @@ def create_billing_for_event(event:dict):
                 BillingItem.assigned: userID,
                 BillingItem.title: title,
                 BillingItem.trydozatrary: duration,
+                BillingItem.trydozatratyKoplate: duration,
                 BillingItem.dateClose: dateClose,
                 BillingItem.project: projectIDtask.split('_')[1],
             }
@@ -450,7 +451,7 @@ def update_billing_for_event(event:dict):
 
     duration=event['DT_LENGTH']
     duration=duration/3600
-    duration=round(duration, 3)
+    duration=round(duration, 2)
 
     title=event['NAME']
     dateClose=event['DATE_FROM']
@@ -461,7 +462,6 @@ def update_billing_for_event(event:dict):
 
     ATTENDEES_CODES=event['ATTENDEES_CODES']
     for code in ATTENDEES_CODES:
-        
         try:
             code.startswith('U')
         except:
