@@ -416,7 +416,7 @@ def create_billing_for_event(event:dict):
             create_billing_item(fields)
 
 
-def find_billing(assignedID:int, title:str, dateClose:str)->list:
+async def find_billing(assignedID:int, title:str, dateClose:str)->list:
     # dateClose=dateClose.split(' ')[0].split('.')
     # dateClose=f"{dateClose[2]}-{dateClose[1]}-{dateClose[0]}T00:00:00"
     param={'entityTypeId':BILLING_ITEM_ID, \
@@ -426,7 +426,7 @@ def find_billing(assignedID:int, title:str, dateClose:str)->list:
                                               BillingItem.dateClose:dateClose}}
     pprint(param)
 
-    billing = bit.get_all('crm.item.list', params={'entityTypeId':BILLING_ITEM_ID, \
+    billing = await bit.get_all('crm.item.list', params={'entityTypeId':BILLING_ITEM_ID, \
                                                'filter': {
                                               'assignedById': assignedID,
                                               'title':title,
@@ -436,7 +436,7 @@ def find_billing(assignedID:int, title:str, dateClose:str)->list:
 
 
 
-def update_billing_for_event(event:dict):
+async def update_billing_for_event(event:dict):
     try:
         event=event['order0000000000']
     except:
@@ -469,7 +469,7 @@ def update_billing_for_event(event:dict):
 
         if code.startswith('U'):
             userID=code.replace('U','')
-            billing = find_billing(assignedID=userID, title=title, dateClose=dateClose)
+            billing = await find_billing(assignedID=userID, title=title, dateClose=dateClose)
             if billing==[]:
                 
                 fields={
@@ -495,7 +495,7 @@ def update_billing_for_event(event:dict):
                     BillingItem.project: projectIDtask.split('_')[1],
                 }
                 print('Есть такой человек обновляем биллинг')
-                update_billing(billing[0]['id'], fields=fields)
+                await update_billing(billing[0]['id'], fields=fields)
                 
 
    
@@ -566,8 +566,8 @@ def create_billing_for_trydozatrary():
 
 
 async def get_calendar_event(eventID:str):
-    randomSecond=random.randint(2, 4)
-    time.sleep(randomSecond)
+    # randomSecond=random.randint(2, 4)
+    # time.sleep(randomSecond)
     try:
         event = await bit.call('calendar.event.getbyid', items={'id': eventID})
         return event

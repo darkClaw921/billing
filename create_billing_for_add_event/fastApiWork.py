@@ -76,7 +76,7 @@ async def update_event(request: Request):
         print(f"{eventID=}")
         event = await get_calendar_event(eventID)
         pprint(event)
-        update_billing_for_event(event=event)
+        await update_billing_for_event(event=event)
 
     elif event == 'ONTASKUPDATE':
         taskID = data['data[FIELDS_BEFORE][ID]']
