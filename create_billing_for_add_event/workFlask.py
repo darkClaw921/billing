@@ -49,7 +49,7 @@ class task_entity(Resource):
         return 'OK'
 
 
-@api.route('/event')
+@api.route('/event-old')
 class task_entity(Resource):
     def post(self):
         """Обновление сущности"""
@@ -96,6 +96,45 @@ class task_entity(Resource):
                 taskID=data['data[FIELDS_BEFORE][ID]']
                 #если задача не закрыта то биллинг не создатся 
                 create_billing_for_task(taskID=taskID)
+@api.route('/event')
+class task_entity(Resource):
+    async def post(self):
+        """Обновление сущности"""
+        data = request.form
+        pprint(data)
+
+        # Добавление задачи в очередь
+        # request_queue.put(data)
+
+        # Получение задачи из очереди
+        # data = request_queue.get()
+        event= data.get('event')
+        
+        if event == 'ONCALENDARENTRYADD':
+            eventID = data['data[id]']
+                
+            print(f"{eventID=}")
+            event = await get_calendar_event(eventID)
+            pprint(event)
+            create_billing_for_event(event=event)
+
+        # Сигнализация о том, что задача обработана
+            # request_queue.task_done()
+        
+        if event == 'ONCALENDARENTRYUPDATE':
+            eventID = data['data[id]']
+            print(f"{eventID=}")
+            event = await get_calendar_event(eventID)
+            pprint(event)
+
+            update_billing_for_event(event=event)
+            # create_billing_for_event(event=event)
+            # request_queue.task_done()
+
+        if event == 'ONTASKUPDATE':
+            taskID=data['data[FIELDS_BEFORE][ID]']
+            #если задача не закрыта то биллинг не создатся 
+            create_billing_for_task(taskID=taskID)
 
     def get(self,):
         """Обновление сущности"""
