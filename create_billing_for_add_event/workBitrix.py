@@ -565,11 +565,11 @@ def create_billing_for_trydozatrary():
         # create_billing_item(fields)
 
 
-async def get_calendar_event(eventID:str):
+def get_calendar_event(eventID:str):
     randomSecond=random.randint(2, 4)
     time.sleep(randomSecond)
     try:
-        event = await bit.call('calendar.event.getbyid', items={'id': eventID})
+        event = bit.call('calendar.event.getbyid', items={'id': eventID})
         return event
     except Exception as e:
         print(e)

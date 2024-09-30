@@ -51,7 +51,7 @@ class task_entity(Resource):
 
 @api.route('/event')
 class task_entity(Resource):
-    async def post(self):
+    def post(self):
         """Обновление сущности"""
         data = request.form
         pprint(data)
@@ -60,11 +60,11 @@ class task_entity(Resource):
         request_queue.put(data)
 
         # Обработка задачи
-        await self.process_queue()
+        self.process_queue()
 
         return 'OK'
 
-    async def process_queue(self):
+    def process_queue(self):
         """Обработка элементов из очереди"""
         while not request_queue.empty():
             # Получение задачи из очереди
@@ -75,7 +75,7 @@ class task_entity(Resource):
                 eventID = data['data[id]']
                  
                 print(f"{eventID=}")
-                event = await get_calendar_event(eventID)
+                event = get_calendar_event(eventID)
                 pprint(event)
                 create_billing_for_event(event=event)
 
@@ -85,7 +85,7 @@ class task_entity(Resource):
             if event == 'ONCALENDARENTRYUPDATE':
                 eventID = data['data[id]']
                 print(f"{eventID=}")
-                event = await get_calendar_event(eventID)
+                event = get_calendar_event(eventID)
                 pprint(event)
 
                 update_billing_for_event(event=event)
