@@ -431,6 +431,7 @@ async def find_billing(assignedID:int, title:str, dateClose:str)->list:
     pprint(param)
 
     billing = await bit.get_all('crm.item.list', params=param)
+    pprint(billing)
     return billing
 
 
@@ -455,6 +456,8 @@ async def update_billing_for_event(event:dict):
 
     title=event['NAME']
     dateClose=event['DATE_FROM']
+    pprint(event)
+    print(f'{dateClose=}')
 
     
     dateClose=dateClose.split(' ')[0].split('.')
@@ -744,9 +747,12 @@ async def main():
 
 
 if __name__ == '__main__':
-    create_billing_for_task(153)
+    # create_billing_for_task(153)
     # a=bit.call('tasks.task.getFields', raw=True)
     # pprint(a)
+    asyncio.run(find_billing(assignedID=23,
+                             title='тест2',
+                             dateClose='2024-05-23'))
     pass
     # eventt=get_calendar_event('231')
     # pprint(eventt)
