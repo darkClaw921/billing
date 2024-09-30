@@ -1,6 +1,6 @@
 import time
 import redisWork
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import BackgroundTasks
@@ -34,29 +34,11 @@ app.add_middleware(
 
 REPORT_ITEM_ID = 159
 
-class TaskData(BaseModel):
-    a: list
-
-class EventData(BaseModel):
-    event: str
-    data: dict
-
-class ProjectData(BaseModel):
-    userID: str
-    projectID: str
-
-class ReportData(BaseModel):
-    entitiID: str
-    itemID: int
-    userID: str
-    startDate: str
-    endDate: str
-
 @app.post('/task')
-async def update_task(data: TaskData):
+async def update_task(data: dict):
     """Обновление сущности"""
     pprint(data)
-    taskID = data.a[2].split('=')[1]
+    taskID = data['a'][2].split('=')[1]
     workList = get_task_work_time(taskID)
     lenWork = len(workList)
     
@@ -72,62 +54,35 @@ async def update_task(data: TaskData):
 
     return JSONResponse(content={'message': 'OK'})
 
-@app.post('/event-old')
-async def update_event_old(data: EventData, background_tasks: BackgroundTasks):
-    """Обновление сущности"""
-    pprint(data)
-
-    # Add task to background processing
-    background_tasks.add_task(process_event, data)
-    
-    return JSONResponse(content={'message': 'OK'})
-
-async def process_event(data: EventData):
-    """Process elements from the queue"""
-    event = data.event
-    
-    if event == 'ONCALENDARENTRYADD':
-        eventID = data.data['id']
-        print(f"{eventID=}")
-        event = await get_calendar_event(eventID)
-        pprint(event)
-        create_billing_for_event(event=event)
-
-    elif event == 'ONCALENDARENTRYUPDATE':
-        eventID = data.data['id']
-        print(f"{eventID=}")
-        event = await get_calendar_event(eventID)
-        pprint(event)
-        update_billing_for_event(event=event)
-
-    elif event == 'ONTASKUPDATE':
-        taskID = data.data['FIELDS_BEFORE']['ID']
-        create_billing_for_task(taskID=taskID)
-
 @app.post('/event')
-async def update_event(data: EventData):
+async def update_event(request: Request):
     """Обновление сущности"""
+    form_data = await request.form()
+    data = {key: form_data[key] for key in form_data.keys()}
     pprint(data)
-    event = data.event
+
+    event = data.get('event')
     print(f"{event=}")
     
     if event == 'ONCALENDARENTRYADD':
-        eventID = data.data['id']
+        eventID = data['data[id]']
         print(f"{eventID=}")
         event = await get_calendar_event(eventID)
         pprint(event)
         create_billing_for_event(event=event)
 
     elif event == 'ONCALENDARENTRYUPDATE':
-        eventID = data.data['id']
+        eventID = data['data[id]']
         print(f"{eventID=}")
         event = await get_calendar_event(eventID)
         pprint(event)
         update_billing_for_event(event=event)
 
     elif event == 'ONTASKUPDATE':
-        taskID = data.data['FIELDS_BEFORE']['ID']
+        taskID = data['data[FIELDS_BEFORE][ID]']
         create_billing_for_task(taskID=taskID)
+
+    return JSONResponse(content={'message': 'OK'})
 
 @app.post('/project/{userID}/{projectID}')
 async def update_project(userID: str, projectID: str):
