@@ -98,7 +98,7 @@ class task_entity(Resource):
                 create_billing_for_task(taskID=taskID)
 @api.route('/event')
 class task_entity(Resource):
-    async def post(self):
+    def post(self):
         """Обновление сущности"""
         data = request.form
         pprint(data)
@@ -108,13 +108,15 @@ class task_entity(Resource):
 
         # Получение задачи из очереди
         # data = request_queue.get()
+        pprint(data)
         event= data.get('event')
+        print (f"{event=}")
         
         if event == 'ONCALENDARENTRYADD':
             eventID = data['data[id]']
                 
             print(f"{eventID=}")
-            event = await get_calendar_event(eventID)
+            event = asyncio.runt(get_calendar_event(eventID))
             pprint(event)
             create_billing_for_event(event=event)
 
@@ -124,7 +126,8 @@ class task_entity(Resource):
         if event == 'ONCALENDARENTRYUPDATE':
             eventID = data['data[id]']
             print(f"{eventID=}")
-            event = await get_calendar_event(eventID)
+            # event = await get_calendar_event(eventID)
+            event = asyncio.runt(get_calendar_event(eventID))
             pprint(event)
 
             update_billing_for_event(event=event)
