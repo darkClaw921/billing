@@ -10,12 +10,17 @@ from workBitrix import get_task_work_time, create_item, get_crm_task, \
     create_billing_for_event,get_calendar_event, \
     update_project_for_sotrudnik,update_billing_for_event
 import asyncio
+from dotenv import load_dotenv
+load_dotenv()
+import os
 
+PORT= os.getenv('PORT')
 app = Flask(__name__)
 api = Api(app, version='1.0', title='pkGroup API',description='A pkGroup API billing',)
 from queue import Queue
 # Создание экземпляра очереди
 request_queue = Queue()
+
 REPORT_ITEM_ID=159
 @api.route('/task')
 class task_entity(Resource):
@@ -259,7 +264,7 @@ async def a():
 
 if __name__ == '__main__':
     # asyncio.run(a())
-    app.run(host='0.0.0.0',port='5006',debug=False)
+    app.run(host='0.0.0.0',port=PORT,debug=False)
     
 
     # update_billing_for_event(event=event)
