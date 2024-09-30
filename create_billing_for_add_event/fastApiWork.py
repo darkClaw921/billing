@@ -21,7 +21,7 @@ from loguru import logger
 
 # log = logger()
 from loguru import logger
-logger.add("logs/createBilling_{time}.log",format="{time} - {level} - {message}", rotation="100 MB", retention="10 days", level="DEBUG")
+logger.add("logs/fastApi_{time}.log",format="{time} - {level} - {message}", rotation="100 MB", retention="10 days", level="DEBUG")
 
 load_dotenv()
 

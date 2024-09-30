@@ -14,6 +14,8 @@ load_dotenv()
 webhook = os.getenv('WEBHOOK')
 bit = Bitrix(webhook)
 
+from loguru import logger
+logger.add("logs/workBitrix_{time}.log",format="{time} - {level} - {message}", rotation="100 MB", retention="10 days", level="DEBUG")
 
 
 BILLING_ITEM_ID=os.getenv('BILLING_ITEM_ID')
@@ -413,6 +415,7 @@ async def create_billing_for_event(event:dict):
                 BillingItem.project: projectIDtask.split('_')[1],
             }
             pprint(fields)
+            logger.info(f'{fields=}')
             await create_billing_item(fields)
 
 
@@ -481,9 +484,14 @@ async def update_billing_for_event(event:dict):
                     BillingItem.dateClose: dateClose,
                     BillingItem.project: projectIDtask.split('_')[1],
                 }
-                pprint(fields)
-                await create_billing_item(fields=fields)
-                print('Нет такого человека создаем биллинг')
+                # pprint(fields)
+                logger.info(f'Нет такого биллига создаем биллинг {title} на {dateClose}')
+                try:
+                    await create_billing_item(fields=fields)
+                except Exception as e:
+                    logger.error(f'не удалось создать биллинг {title} {e.with_traceback()}')
+                    
+                    
             else:
                 fields={
                     # BillingItem.assigned: event['CREATED_BY'],
@@ -494,8 +502,14 @@ async def update_billing_for_event(event:dict):
                     BillingItem.dateClose: dateClose,
                     BillingItem.project: projectIDtask.split('_')[1],
                 }
-                print('Есть такой человек обновляем биллинг')
-                await update_billing(billing[0]['id'], fields=fields)
+                # print('Есть такой человек обновляем биллинг')
+                logger.info(f'Есть такой биллинг обновляем {title} на {dateClose}')
+                try:
+                    logger.warning(billing)
+                    await update_billing(billing[0]['id'], fields=fields)
+                    
+                except Exception as e:
+                    logger.error(f'не удалось обновить биллинг {title} {e.with_traceback()}')
                 
 
    
